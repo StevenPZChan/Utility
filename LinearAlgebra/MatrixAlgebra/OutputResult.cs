@@ -2,6 +2,9 @@
 
 namespace LinearAlgebra
 {
+    /// <summary>
+    /// LU分解
+    /// </summary>
     public struct MatrixLU
     {
         /// <summary>
@@ -12,7 +15,12 @@ namespace LinearAlgebra
         /// 上三角矩阵
         /// </summary>
         public Matrix U { get; set; }
+        /// <summary>
+        /// 奇偶性
+        /// </summary>
         public int Parity { get; set; }
+
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
         public override string ToString()
         {
             return string.Join("\r\n", L, U);
@@ -21,7 +29,12 @@ namespace LinearAlgebra
         {
             return string.Join("\r\n", L.ToString(format), U.ToString(format));
         }
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
     }
+
+    /// <summary>
+    /// QR分解
+    /// </summary>
     public struct MatrixQR
     {
         /// <summary>
@@ -32,6 +45,8 @@ namespace LinearAlgebra
         /// R矩阵（上三角矩阵）
         /// </summary>
         public Matrix R { get; set; }
+
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
         public override string ToString()
         {
             return string.Join("\r\n", Q, R);
@@ -40,7 +55,12 @@ namespace LinearAlgebra
         {
             return string.Join("\r\n", Q.ToString(format), R.ToString(format));
         }
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
     }
+
+    /// <summary>
+    /// 特征值
+    /// </summary>
     public struct MatrixEigenValue
     {
         /// <summary>
@@ -54,12 +74,6 @@ namespace LinearAlgebra
         /// <summary>
         /// 特征值的复数数组
         /// </summary>
-        public Complex[] ComplexArray
-        {
-            get
-            {
-                return Real.Zip(Imaginary, (x, y) => new Complex(x, y)).ToArray();
-            }
-        }
+        public Complex[] ComplexArray { get { return Real.Zip(Imaginary, (x, y) => new Complex(x, y)).ToArray(); } }
     }
 }

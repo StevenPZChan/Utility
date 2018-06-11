@@ -2,54 +2,69 @@
 using System.Globalization;
 namespace LinearAlgebra
 {
+    /// <summary>
+    /// 复数类
+    /// </summary>
     public struct Complex : IEquatable<Complex>, IFormattable
     {
-        double real;
-        double imaginary;
+        /// <summary>
+        /// 实部
+        /// </summary>
         public double Real { get { return real; } set { real = value; } }
+        /// <summary>
+        /// 虚部
+        /// </summary>
         public double Imaginary { get { return imaginary; } set { imaginary = value; } }
-        const double eps = 1e-9;
-        const double Radian90 = Math.PI / 2.0;
+
+        private const double eps = 1e-9;
+        private const double Radian90 = Math.PI / 2.0;
+        private double real;
+        private double imaginary;
+
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="_real">实部</param>
+        /// <param name="_imaginary">虚部</param>
         public Complex(double _real, double _imaginary) { real = _real; imaginary = _imaginary; }
-        public static implicit operator Complex(double x) { return new Complex(x, 0.0); }
-        public static Complex operator +(Complex z1, Complex z2)
-        {
-            return z1.Add(z2);
-        }
-        public static Complex operator -(Complex z1, Complex z2)
-        {
-            return z1.Subtract(z2);
-        }
-        public static Complex operator *(Complex z1, Complex z2)
-        {
-            return z1.Multiply(z2);
-        }
-        public static Complex operator /(Complex z1, Complex z2)
-        {
-            return z1.Divide(z2);
-        }
-        public static bool operator ==(Complex z1, Complex z2)
-        {
-            return z1.Equals(z2);
-        }
-        public static bool operator !=(Complex z1, Complex z2)
-        {
-            return !z1.Equals(z2);
-        }
+
+        /// <summary>
+        /// 加法
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public Complex Add(Complex other)
         {
             return new Complex(real + other.real, imaginary + other.imaginary);
         }
+
+        /// <summary>
+        /// 减法
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public Complex Subtract(Complex other)
         {
             return new Complex(real - other.real, imaginary - other.imaginary);
         }
+
+        /// <summary>
+        /// 乘法
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public Complex Multiply(Complex other)
         {
             double x = real * other.real - imaginary * other.imaginary;
             double y = real * other.imaginary + imaginary * other.real;
             return new Complex(x, y);
         }
+
+        /// <summary>
+        /// 除法
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public Complex Divide(Complex other)
         {
             double e, f, x, y;
@@ -69,6 +84,12 @@ namespace LinearAlgebra
             }
             return new Complex(x, y);
         }
+
+        /// <summary>
+        /// 数乘方
+        /// </summary>
+        /// <param name="Exponent">指数</param>
+        /// <returns></returns>
         public Complex Pow(double Exponent)
         {
             double r, t;
@@ -94,6 +115,13 @@ namespace LinearAlgebra
             double u = Exponent * t;
             return new Complex(r * Math.Cos(u), r * Math.Sin(u));
         }
+
+        /// <summary>
+        /// 矩阵乘方
+        /// </summary>
+        /// <param name="Exponent">矩阵底</param>
+        /// <param name="n">指数</param>
+        /// <returns></returns>
         public Complex Pow(Complex Exponent, int n)
         {
             double r, s, u, v;
@@ -117,6 +145,11 @@ namespace LinearAlgebra
             u = Math.Exp(Exponent.real * r - Exponent.imaginary * s);
             return new Complex(u * Math.Cos(v), u * Math.Sin(v));
         }
+
+        /// <summary>
+        /// 绝对值
+        /// </summary>
+        /// <returns></returns>
         public double Abs()
         {
             double x = Math.Abs(real);
@@ -127,18 +160,52 @@ namespace LinearAlgebra
                 return x * Math.Sqrt(1.0 + Square(y / x));
             return y * Math.Sqrt(1.0 + Square(x / y));
         }
+
+        /// <summary>
+        /// 对数
+        /// </summary>
+        /// <returns></returns>
         public Complex Log()
         {
             double p = Math.Log(Math.Sqrt(QuadraticSum()));
             return new Complex(p, Math.Atan2(imaginary, real));
         }
+
         private static double Square(double x)
         {
             return x * x;
         }
+
         private double QuadraticSum()
         {
             return real * real + imaginary * imaginary;
+        }
+
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
+        public static implicit operator Complex(double x) { return new Complex(x, 0.0); }
+        public static Complex operator +(Complex z1, Complex z2)
+        {
+            return z1.Add(z2);
+        }
+        public static Complex operator -(Complex z1, Complex z2)
+        {
+            return z1.Subtract(z2);
+        }
+        public static Complex operator *(Complex z1, Complex z2)
+        {
+            return z1.Multiply(z2);
+        }
+        public static Complex operator /(Complex z1, Complex z2)
+        {
+            return z1.Divide(z2);
+        }
+        public static bool operator ==(Complex z1, Complex z2)
+        {
+            return z1.Equals(z2);
+        }
+        public static bool operator !=(Complex z1, Complex z2)
+        {
+            return !z1.Equals(z2);
         }
         public override string ToString()
         {
@@ -182,5 +249,6 @@ namespace LinearAlgebra
             }
             else return string.Concat(imaginary.ToString(format, formatProvider), "i");
         }
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
     }
 }

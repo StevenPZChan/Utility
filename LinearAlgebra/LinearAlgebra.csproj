@@ -47,6 +47,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <DocumentationFile>bin\Release\LinearAlgebra.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -66,7 +69,7 @@
     <Compile Include="LinearEquations\ConjugateGradient.cs" />
     <Compile Include="LinearEquations\GaussElimination.cs" />
     <Compile Include="LinearEquations\LinearLeastSquares.cs" />
-    <Compile Include="MatrixAlgebra\Matrix.cs" />
+    <Compile Include="Matrix.cs" />
     <Compile Include="MatrixAlgebra\MatrixComputation.cs" />
     <Compile Include="MatrixAlgebra\MatrixDecomposition.cs" />
     <Compile Include="MatrixAlgebra\MatrixIO.cs" />

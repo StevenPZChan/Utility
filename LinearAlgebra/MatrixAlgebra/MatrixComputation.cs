@@ -5,7 +5,8 @@ namespace LinearAlgebra.MatrixAlgebra
 {
     internal static class MatrixComputation
     {
-        const Double eps = 1e-9;
+        private const double eps = 1e-9;
+
         internal static double[,] UnaryMinus(double[,] mat)
         {
             var ans = new double[mat.RowCount(), mat.ColumnCount()];
@@ -13,11 +14,12 @@ namespace LinearAlgebra.MatrixAlgebra
             {
                 fixed (double* a = ans)
                 fixed (double* m = mat)
-                for (int i = mat.Length - 1; i >= 0; i--)
-                    a[i] = -m[i];
+                    for (int i = mat.Length - 1; i >= 0; i--)
+                        a[i] = -m[i];
             }
             return ans;
         }
+
         internal static double[,] Add(double[,] A, double[,] B)
         {
             int mA = A.RowCount(), mB = B.RowCount(),
@@ -31,10 +33,11 @@ namespace LinearAlgebra.MatrixAlgebra
                 fixed (double* a = A)
                 fixed (double* b = B)
                     for (int i = mA * nA - 1; i >= 0; i--)
-                    answer[i] = a[i] + b[i];
+                        answer[i] = a[i] + b[i];
             }
             return ans;
         }
+
         internal static double[,] Subtract(double[,] A, double[,] B)
         {
             int mA = A.RowCount(), mB = B.RowCount(),
@@ -47,8 +50,8 @@ namespace LinearAlgebra.MatrixAlgebra
                 fixed (double* answer = ans)
                 fixed (double* a = A)
                 fixed (double* b = B)
-                   for (int i = mA * nA - 1; i >= 0; i--)
-                    answer[i] = a[i] - b[i];
+                    for (int i = mA * nA - 1; i >= 0; i--)
+                        answer[i] = a[i] - b[i];
             }
             return ans;
         }
@@ -72,11 +75,12 @@ namespace LinearAlgebra.MatrixAlgebra
                     fixed (double* mat = ans)
                     fixed (double* a = A)
                     fixed (double* b = B)
-                    CacheAwareMultiply(mat, a, b, i, nA, nB);
+                        CacheAwareMultiply(mat, a, b, i, nA, nB);
                 });
             }
             return ans;
         }
+
         private static unsafe void CacheAwareMultiply
          (double* mat, double* a, double* b, int i, int nA, int nB)
         {
@@ -90,10 +94,12 @@ namespace LinearAlgebra.MatrixAlgebra
                     mat[inB + j] += inAk * b[knB + j];
             }
         }
+
         internal static double[,] Divide(double[,] A, double[,] B)
         {
             return Multiply(A, Inverse(B));
         }
+
         internal static double[,] Inverse(double[,] Mat)
         {
             int nRows = Mat.RowCount();
@@ -171,7 +177,7 @@ namespace LinearAlgebra.MatrixAlgebra
             }
             return M;
         }
-        
+
         internal static double[,] Transpose(double[,] A)
         {
             int nRows = A.RowCount();
@@ -181,12 +187,13 @@ namespace LinearAlgebra.MatrixAlgebra
             {
                 fixed (double* a = A)
                 fixed (double* mat = result)
-                for (int i = 0; i < nRows; i++)
-                    for (int j = 0; j < nCols; j++)
-                        mat[j * nRows + i] = a[i * nCols + j];
+                    for (int i = 0; i < nRows; i++)
+                        for (int j = 0; j < nCols; j++)
+                            mat[j * nRows + i] = a[i * nCols + j];
             }
             return result;
         }
+
         internal static int Rank(double[,] Mat)
         {
             int nRows = Mat.RowCount();
@@ -200,53 +207,53 @@ namespace LinearAlgebra.MatrixAlgebra
             unsafe
             {
                 fixed (double* mat = M)
-                for (int w = 0; w < k; w++)//消元
-                {
-                    d = 0.0;
-                    for (int i = w; i < nRows; i++)
-                        for (int j = w; j < nCols; j++)
-                        {
-                            u = i * nCols + j;
-                            p = Math.Abs(mat[u]);
-                            if (p > d)//选主元
+                    for (int w = 0; w < k; w++)//消元
+                    {
+                        d = 0.0;
+                        for (int i = w; i < nRows; i++)
+                            for (int j = w; j < nCols; j++)
                             {
-                                d = p;
-                                nis = i;
-                                js = j;
+                                u = i * nCols + j;
+                                p = Math.Abs(mat[u]);
+                                if (p > d)//选主元
+                                {
+                                    d = p;
+                                    nis = i;
+                                    js = j;
+                                }
+                            }
+
+                        if (Math.Abs(d) < eps)//由于浮点数的误差，这里需要与精度进行比较
+                            return rank;
+
+                        rank++;
+                        if (nis != w)
+                            for (int j = w; j < nCols; j++)
+                            {
+                                u = w * nCols + j;
+                                v = nis * nCols + j;
+                                Utility.Swap(mat, u, v);
+                            }
+
+                        if (js != w)
+                            for (int i = w; i < nRows; i++)
+                            {
+                                u = i * nCols + js;
+                                v = i * nCols + w;
+                                Utility.Swap(mat, u, v);
+                            }
+
+                        v = w * nCols + w;
+                        for (int i = w + 1; i < nRows; i++)//书上这里有bug，这里应该是行数
+                        {
+                            p = mat[i * nCols + w] / mat[v];
+                            for (int j = w + 1; j < nCols; j++)
+                            {
+                                u = i * nCols + j;
+                                mat[u] -= p * mat[w * nCols + j];
                             }
                         }
-
-                    if (Math.Abs(d) < eps)//由于浮点数的误差，这里需要与精度进行比较
-                        return rank;
-
-                    rank++;
-                    if (nis != w)
-                        for (int j = w; j < nCols; j++)
-                        {
-                            u = w * nCols + j;
-                            v = nis * nCols + j;
-                            Utility.Swap(mat, u, v);
-                        }
-
-                    if (js != w)
-                        for (int i = w; i < nRows; i++)
-                        {
-                            u = i * nCols + js;
-                            v = i * nCols + w;
-                            Utility.Swap(mat, u, v);
-                        }
-
-                    v = w * nCols + w;
-                    for (int i = w + 1; i < nRows; i++)//书上这里有bug，这里应该是行数
-                    {
-                        p = mat[i * nCols + w] / mat[v];
-                        for (int j = w + 1; j < nCols; j++)
-                        {
-                            u = i * nCols + j;
-                            mat[u] -= p * mat[w * nCols + j];
-                        }
                     }
-                }
             }
             return rank;
         }

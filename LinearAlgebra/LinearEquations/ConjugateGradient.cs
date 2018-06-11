@@ -2,12 +2,16 @@
 using LinearAlgebra.MatrixAlgebra;
 namespace LinearAlgebra.LinearEquations
 {
+    /// <summary>
+    /// 共轭梯度法
+    /// </summary>
     public class ConjugateGradient
     {
         /// <summary>
-        /// 
+        /// 解向量
         /// </summary>
         public double[] X { get; private set; }
+
         /// <summary>
         /// 求解对称正定方程组的共轭梯度法
         /// A * X = B
@@ -21,7 +25,7 @@ namespace LinearAlgebra.LinearEquations
 
         private static double[] Solve(double[,] A, double[] B)
         {
-            const Double eps = 1e-9;
+            const double eps = 1e-9;
             int nRows = A.RowCount();
             int nCols = A.ColumnCount();
             if (nRows != nCols) throw new ArgumentException();
@@ -80,14 +84,14 @@ namespace LinearAlgebra.LinearEquations
             {
                 fixed (double* a = A)
                 fixed (double* b = B)
-                for (int i = 0; i < n; i++)
-                {
-                    double sum = 0.0;
-                    int i_n = i * n;
-                    for (int j = 0; j < n; j++)
-                        sum += a[i_n + j] * b[j];
-                    ans[i] = sum;
-                }
+                    for (int i = 0; i < n; i++)
+                    {
+                        double sum = 0.0;
+                        int i_n = i * n;
+                        for (int j = 0; j < n; j++)
+                            sum += a[i_n + j] * b[j];
+                        ans[i] = sum;
+                    }
             }
             return ans;
         }

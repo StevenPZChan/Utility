@@ -27,6 +27,7 @@ namespace LinearAlgebra.MatrixAlgebra
                 return Utility.IEnumerableToMatrix(rows, cols, list);
             }
         }
+
         internal static void Save(double[,] mat, string filePath)
         {
             using (var sw = new StreamWriter(filePath))

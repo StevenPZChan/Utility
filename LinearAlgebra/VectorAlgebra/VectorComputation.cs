@@ -11,8 +11,8 @@ namespace LinearAlgebra.VectorAlgebra
             {
                 fixed (double* x = X.Elements)
                 fixed (double* z = Z)
-                for (int i = 0; i < n; i++)
-                    z[i] = -x[i];
+                    for (int i = 0; i < n; i++)
+                        z[i] = -x[i];
             }
             return new Vector(Z, X.vectorType);
         }
@@ -26,8 +26,8 @@ namespace LinearAlgebra.VectorAlgebra
                 fixed (double* x = X.Elements)
                 fixed (double* y = Y.Elements)
                 fixed (double* z = Z)
-                for (int i = 0; i < n; i++)
-                    z[i] = x[i] + y[i];
+                    for (int i = 0; i < n; i++)
+                        z[i] = x[i] + y[i];
             }
             return new Vector(Z, X.vectorType);
         }
@@ -41,8 +41,8 @@ namespace LinearAlgebra.VectorAlgebra
                 fixed (double* x = X.Elements)
                 fixed (double* y = Y.Elements)
                 fixed (double* z = Z)
-                for (int i = 0; i < n; i++)
-                    z[i] = x[i] - y[i];
+                    for (int i = 0; i < n; i++)
+                        z[i] = x[i] - y[i];
             }
             return new Vector(Z, X.vectorType);
         }
@@ -56,8 +56,8 @@ namespace LinearAlgebra.VectorAlgebra
                 fixed (double* x = X.Elements)
                 fixed (double* y = Y.Elements)
                 fixed (double* z = Z)
-                for (int i = 0; i < n; i++)
-                    z[i] = x[i] * y[i];
+                    for (int i = 0; i < n; i++)
+                        z[i] = x[i] * y[i];
             }
             return new Vector(Z, X.vectorType);
         }
@@ -71,8 +71,8 @@ namespace LinearAlgebra.VectorAlgebra
                 fixed (double* x = X.Elements)
                 fixed (double* y = Y.Elements)
                 fixed (double* z = Z)
-                for (int i = 0; i < n; i++)
-                    z[i] = x[i] / y[i];
+                    for (int i = 0; i < n; i++)
+                        z[i] = x[i] / y[i];
             }
             return new Vector(Z, X.vectorType);
         }
@@ -84,8 +84,8 @@ namespace LinearAlgebra.VectorAlgebra
             {
                 fixed (double* x = X.Elements)
                 fixed (double* z = Z)
-                for (int i = 0; i < n; i++)
-                    z[i] = func(x[i]);
+                    for (int i = 0; i < n; i++)
+                        z[i] = func(x[i]);
             }
             return new Vector(Z, X.vectorType);
         }
@@ -104,8 +104,8 @@ namespace LinearAlgebra.VectorAlgebra
             {
                 fixed (double* x = X.Elements)
                 fixed (double* y = Y.Elements)
-                for (int i = X.Count - 1; i >= 0; i--)
-                    sum += x[i] * y[i];
+                    for (int i = X.Count - 1; i >= 0; i--)
+                        sum += x[i] * y[i];
             }
             return sum;
         }

@@ -5,12 +5,18 @@ namespace LinearAlgebra.MatrixAlgebra
 {
     internal sealed class MatrixDecomposition
     {
-        const Double eps = 1e-9;
-        double[,] mat;
+        private const double eps = 1e-9;
+        private double[,] mat;
+
+        /// <summary>
+        /// 矩阵分解类
+        /// </summary>
+        /// <param name="Mat"></param>
         public MatrixDecomposition(double[,] Mat)
         {
             mat = Mat;
         }
+
         internal MatrixLU LU()
         {
             /*
@@ -33,48 +39,48 @@ namespace LinearAlgebra.MatrixAlgebra
             {
                 fixed (double* l = L)
                 fixed (double* u = U)
-                for (int k = 0; k < nCols - 1; k++)
-                {
-                    double p = 0.0;
-                    for (int i = k; i < nRows; i++)  //选主元
+                    for (int k = 0; k < nCols - 1; k++)
                     {
-                        double d = Math.Abs(u[i * nCols + k]);
-                        if (d > p)
+                        double p = 0.0;
+                        for (int i = k; i < nRows; i++)  //选主元
                         {
-                            p = d;
-                            w = i;
+                            double d = Math.Abs(u[i * nCols + k]);
+                            if (d > p)
+                            {
+                                p = d;
+                                w = i;
+                            }
+                        }
+
+                        if (p == 0)
+                            throw new Exception("奇异矩阵解不出啊！");
+
+                        Utility.Swap(pnRows, k, w);
+
+                        for (int i = 0; i < k; i++)
+                            Utility.Swap(l, k * nCols + i, w * nCols + i);
+
+                        if (k != w) Parity *= -1;//行变换会改变奇偶性
+                        Utility.SwapRow(u, k, w, nCols);
+                        for (int i = k + 1; i < nRows; i++)
+                        {
+                            v = i * nCols + k;
+                            l[v] = u[v] / u[k * nCols + k];
+                            for (int j = k; j < nCols; j++)
+                            {
+                                v = i * nCols + j;
+                                u[v] -= l[i * nCols + k] * u[k * nCols + j];
+                            }
                         }
                     }
-
-                    if (p == 0)
-                        throw new Exception("奇异矩阵解不出啊！");
-
-                    Utility.Swap(pnRows, k, w);
-
-                    for (int i = 0; i < k; i++)
-                        Utility.Swap(l, k * nCols + i, w * nCols + i);
-
-                    if (k != w) Parity *= -1;//行变换会改变奇偶性
-                    Utility.SwapRow(u, k, w, nCols);
-                    for (int i = k + 1; i < nRows; i++)
-                    {
-                        v = i * nCols + k;
-                        l[v] = u[v] / u[k * nCols + k];
-                        for (int j = k; j < nCols; j++)
-                        {
-                            v = i * nCols + j;
-                            u[v] -= l[i * nCols + k] * u[k * nCols + j];
-                        }
-                    }
-                }
             }
-            return new MatrixLU
-            {
+            return new MatrixLU {
                 L = L,
                 U = U,
                 Parity = Parity
             };
         }
+
         internal MatrixQR QR()
         {
             int nRows = mat.RowCount();
@@ -171,8 +177,7 @@ namespace LinearAlgebra.MatrixAlgebra
                         }
                 }
             }
-            return new MatrixQR
-            {
+            return new MatrixQR {
                 Q = Q,
                 R = R
             };

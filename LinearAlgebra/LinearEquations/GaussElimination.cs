@@ -3,10 +3,24 @@ using System.Text;
 using LinearAlgebra.MatrixAlgebra;
 namespace LinearAlgebra.LinearEquations
 {
+    /// <summary>
+    /// 高斯消去法
+    /// </summary>
     public class GaussElimination
     {
-        const double eps = 1e-9;
+        /// <summary>
+        /// 解向量
+        /// </summary>
         public double[] X { get; private set; }
+        private const double eps = 1e-9;
+
+        /// <summary>
+        /// 求解方程组的高斯消去法
+        /// A * X = B
+        /// </summary>
+        /// <param name="A">系数矩阵</param>
+        /// <param name="B">常数向量</param>
+        /// <param name="CreateNewInstance">是否生成新对象</param>
         public GaussElimination(Matrix A, double[] B, bool CreateNewInstance = true)
         {
             if (CreateNewInstance)
@@ -14,6 +28,7 @@ namespace LinearAlgebra.LinearEquations
             else
                 X = Solve(A.Elements, B);
         }
+
         private static double[] Solve(double[,] A, double[] B)
         {
             int nRows = A.RowCount();
@@ -31,7 +46,6 @@ namespace LinearAlgebra.LinearEquations
                     {
                         double d = 0.0;
                         for (int i = k; i < n; i++)
-                        {
                             for (int j = k; j < n; j++)
                             {
                                 double t = Math.Abs(a[i * n + j]);
@@ -42,7 +56,6 @@ namespace LinearAlgebra.LinearEquations
                                     pnRow = i;
                                 }
                             }
-                        }
                         if (Math.Abs(d) < eps) throw new Exception("求解失败……");
 
                         if (pnCols[k] != k)
@@ -83,9 +96,7 @@ namespace LinearAlgebra.LinearEquations
                     {
                         double sum = 0.0;
                         for (int j = i + 1; j < n; j++)
-                        {
                             sum += a[i * n + j] * b[j];
-                        }
                         b[i] -= sum;
                     }
 
@@ -97,6 +108,8 @@ namespace LinearAlgebra.LinearEquations
             }
             return B;
         }
+
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
         public override string ToString()
         {
             var s = new StringBuilder();
@@ -105,5 +118,6 @@ namespace LinearAlgebra.LinearEquations
                     .AppendFormat("{0:F6}", X[i]).AppendLine();
             return s.ToString();
         }
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
     }
 }

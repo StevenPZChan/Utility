@@ -162,6 +162,26 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Cameras\Basler.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\circle_add.png" />
+    <EmbeddedResource Include="Resources\circle_sub.png" />
+    <EmbeddedResource Include="Resources\ellipse_add.png" />
+    <EmbeddedResource Include="Resources\ellipse_sub.png" />
+    <EmbeddedResource Include="Resources\line.png" />
+    <EmbeddedResource Include="Resources\rect1_add.png" />
+    <EmbeddedResource Include="Resources\rect1_sub.png" />
+    <EmbeddedResource Include="Resources\rect2_add.png" />
+    <EmbeddedResource Include="Resources\rect2_sub.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Form\hdevelop_icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Form\TSAssist.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO.Ports;
 using System.Text;
 using System.Windows.Forms;
@@ -10,6 +11,7 @@ namespace Utility.IOs
     /// <summary>
     /// 串口开发辅助类
     /// </summary>
+    [ToolboxBitmap(typeof(SerialPort))]
     public class SerialPortUtil : Component
     {
         /// <summary>

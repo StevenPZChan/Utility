@@ -12,6 +12,7 @@ namespace Utility.Form
     /// <summary>
     /// Halcon画ROI辅助工具，适应选择按钮和显示选项，控件的Click事件会在每次单个按钮按下后触发
     /// </summary>
+    [ToolboxBitmap(typeof(HalconROIHelper), "hdevelop_icon.ico")]
     public partial class HalconROIHelper : UserControl
     {
         /// <summary>

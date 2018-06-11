@@ -7,20 +7,28 @@ using System.Globalization;
 using LinearAlgebra.MatrixAlgebra;
 namespace LinearAlgebra
 {
-    public sealed class Matrix : IEnumerable<Double>, IEquatable<Matrix>, IFormattable
+    /// <summary>
+    /// 矩阵类
+    /// </summary>
+    public sealed class Matrix : IEnumerable<double>, IEquatable<Matrix>, IFormattable
     {
-        Double[,] elements;
-        const Double eps = 1e-9;
-        const int DOUBLE_SIZE = sizeof(double);
+        private const double eps = 1e-9;
+        private const int DOUBLE_SIZE = sizeof(double);
         private MatrixSubset SubMat;
+        private double[,] elements;
+
         /// <summary>
         /// 利用二维Double数组初始化矩阵
         /// </summary>
         /// <param name="Elements"></param>
-        public Matrix(Double[,] Elements)
+        public Matrix(double[,] Elements)
         {
             Initialize(Elements);
         }
+        /// <summary>
+        /// 利用矩阵初始化矩阵
+        /// </summary>
+        /// <param name="M"></param>
         public Matrix(Matrix M)
         {
             Initialize(Utility.CopyMatrix(M.elements));
@@ -30,28 +38,26 @@ namespace LinearAlgebra
             elements = Elements;
             SubMat = new MatrixSubset(elements);
         }
+
         /// <summary>
         /// 获取矩阵的行数
         /// </summary>
-        public int RowCount
-        {
-            get { return elements.GetLength(0); }
-        }
+        public int RowCount { get { return elements.GetLength(0); } }
         /// <summary>
         /// 获取矩阵的列数
         /// </summary>
-        public int ColumnCount
-        {
-            get { return elements.GetLength(1); }
-        }
+        public int ColumnCount { get { return elements.GetLength(1); } }
         /// <summary>
         /// 获取矩阵的元素数量
         /// </summary>
-        public int Count
-        {
-            get { return elements.Length; }
-        }
-        public Double this[int row, int col]
+        public int Count { get { return elements.Length; } }
+        /// <summary>
+        /// 获取矩阵的某个元素
+        /// </summary>
+        /// <param name="row">行索引</param>
+        /// <param name="col">列索引</param>
+        /// <returns>元素值</returns>
+        public double this[int row, int col]
         {
             get { return elements[row, col]; }
             set { elements[row, col] = value; }
@@ -60,7 +66,7 @@ namespace LinearAlgebra
         /// 返回矩阵元素
         /// </summary>
         /// <returns></returns>
-        public Double[,] Elements
+        public double[,] Elements
         {
             get { return elements; }
             set { elements = value; }
@@ -72,7 +78,7 @@ namespace LinearAlgebra
         /// <param name="nCols">列数</param>
         /// <param name="Elements">矩阵元素</param>
         /// <returns></returns>
-        public static Matrix Create(int nRows, int nCols, Double[] Elements)
+        public static Matrix Create(int nRows, int nCols, double[] Elements)
         {
             return Utility.ArrayToMatrix(nRows, nCols, Elements);
         }
@@ -83,10 +89,12 @@ namespace LinearAlgebra
         /// <param name="nCols">列数</param>
         /// <param name="Elements">矩阵元素</param>
         /// <returns></returns>
-        public static Matrix Create(int nRows, int nCols, IEnumerable<Double> Elements)
+        public static Matrix Create(int nRows, int nCols, IEnumerable<double> Elements)
         {
             return Utility.IEnumerableToMatrix(nRows, nCols, Elements);
         }
+
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
         public static implicit operator Matrix(double[,] Elements)
         {
             return new Matrix(Elements);
@@ -149,6 +157,8 @@ namespace LinearAlgebra
             return MatrixScalar.DivideScalar(Scalar, Mat.Inverse().elements);
         }
         #endregion
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
+
         /// <summary>
         /// 全选主元高斯-约当法求逆矩阵
         /// </summary>
@@ -157,6 +167,7 @@ namespace LinearAlgebra
         {
             return MatrixComputation.Inverse(elements);
         }
+
         /// <summary>
         /// 矩阵的转置
         /// </summary>
@@ -165,6 +176,7 @@ namespace LinearAlgebra
         {
             return MatrixComputation.Transpose(elements);
         }
+
         /// <summary>
         /// 矩阵的幂
         /// </summary>
@@ -187,6 +199,7 @@ namespace LinearAlgebra
                     return (Exponent & 1) == 0 ? M : this * M;
             }
         }
+
         /// <summary>
         /// 全选主元高斯消去法求解矩阵的秩
         /// </summary>
@@ -195,6 +208,7 @@ namespace LinearAlgebra
         {
             return MatrixComputation.Rank(elements);
         }
+
         /// <summary>
         /// 矩阵的LU分解
         /// </summary>
@@ -202,9 +216,9 @@ namespace LinearAlgebra
         /// <returns></returns>
         public MatrixLU LU(bool CreateNewInstance = true)
         {
-            return new MatrixDecomposition(
-                CreateNewInstance ? elements.CopyMatrix() : elements).LU();
+            return new MatrixDecomposition(CreateNewInstance ? elements.CopyMatrix() : elements).LU();
         }
+
         /// <summary>
         /// 矩阵的QR分解（Householder方法）
         /// </summary>
@@ -215,6 +229,7 @@ namespace LinearAlgebra
             return new MatrixDecomposition(
                 CreateNewInstance ? elements.CopyMatrix() : elements).QR();
         }
+
         /// <summary>
         /// 求行列式的值
         /// </summary>
@@ -224,6 +239,7 @@ namespace LinearAlgebra
         {
             return Det(LU(CreateNewInstance));
         }
+
         /// <summary>
         /// 求行列式的值
         /// </summary>
@@ -238,6 +254,7 @@ namespace LinearAlgebra
                 det *= U[i, i];
             return det;
         }
+
         /// <summary>
         /// 利用初等相似变换将一般实矩阵约化为Hessen Berg矩阵
         /// （注：存在不同的变换方式，因此结果并不唯一）
@@ -256,55 +273,56 @@ namespace LinearAlgebra
             unsafe
             {
                 fixed (double* h = H.elements)
-                for (int k = 1; k < nCols - 1; k++)
-                {
-                    max = 0.0;
-                    for (int j = k; j < nCols; j++)
+                    for (int k = 1; k < nCols - 1; k++)
                     {
-                        u = j * nCols + k - 1;
-                        t = h[u];
-                        if (Math.Abs(t) > Math.Abs(max))
+                        max = 0.0;
+                        for (int j = k; j < nCols; j++)
                         {
-                            max = t;
-                            i = j;
+                            u = j * nCols + k - 1;
+                            t = h[u];
+                            if (Math.Abs(t) > Math.Abs(max))
+                            {
+                                max = t;
+                                i = j;
+                            }
+                        }
+
+                        if (max != 0.0)
+                        {
+                            if (i != k)
+                            {
+                                for (int j = k - 1; j < nCols; j++)
+                                {
+                                    u = i * nCols + j;
+                                    v = k * nCols + j;
+                                    Swap(h, u, v);
+                                }
+                                SwapColumn(h, i, k, nRows, nCols);
+                            }
+
+                            for (i = k + 1; i < nCols; i++)
+                            {
+                                u = i * nCols + k - 1;
+                                t = h[u] / max;
+                                h[u] = 0.0;
+                                for (int j = k; j < nCols; j++)
+                                {
+                                    v = i * nCols + j;
+                                    h[v] -= t * h[k * nCols + j];
+                                }
+
+                                for (int j = 0; j < nCols; j++)
+                                {
+                                    v = j * nCols + k;
+                                    h[v] += t * h[j * nCols + i];
+                                }
+                            }
                         }
                     }
-
-                    if (max != 0.0)
-                    {
-                        if (i != k)
-                        {
-                            for (int j = k - 1; j < nCols; j++)
-                            {
-                                u = i * nCols + j;
-                                v = k * nCols + j;
-                                Swap(h, u, v);
-                            }
-                            SwapColumn(h, i, k, nRows, nCols);
-                        }
-
-                        for (i = k + 1; i < nCols; i++)
-                        {
-                            u = i * nCols + k - 1;
-                            t = h[u] / max;
-                            h[u] = 0.0;
-                            for (int j = k; j < nCols; j++)
-                            {
-                                v = i * nCols + j;
-                                h[v] -= t * h[k * nCols + j];
-                            }
-
-                            for (int j = 0; j < nCols; j++)
-                            {
-                                v = j * nCols + k;
-                                h[v] += t * h[j * nCols + i];
-                            }
-                        }
-                    }
-                }
             }
             return H;
         }
+
         /// <summary>
         /// 求实矩阵全部特征值
         /// （方法：先变换为Hessen Berg矩阵，再应用带原点位移的双重步QR方法进行迭代）
@@ -316,6 +334,7 @@ namespace LinearAlgebra
         {
             return Eigen(HessenBerg(), MaxTimes, Precision);
         }
+
         /// <summary>
         /// 求Hessen Berg矩阵的全部特征根
         /// （方法：QR迭代）
@@ -336,164 +355,164 @@ namespace LinearAlgebra
             unsafe
             {
                 fixed (double* mat = matHB.elements)
-                while (m != 0)
-                {
-                    int t = m - 1;
-                    while ((t > 0) &&
-                        (Math.Abs(mat[t * nCols + t - 1])
-                        > Precision * (Math.Abs(mat[(t - 1) * nCols + t - 1]) + Math.Abs(mat[t * nCols + t]))))
-                        t--;
-
-                    int ii = (m - 1) * nCols + (m - 1);
-                    int jj = (m - 1) * nCols + (m - 2);
-                    int kk = (m - 2) * nCols + (m - 1);
-                    int tt = (m - 2) * nCols + (m - 2);
-
-                    if (t == m - 1)
+                    while (m != 0)
                     {
-                        Real[m - 1] = mat[(m - 1) * nCols + (m - 1)];
-                        Imaginary[m - 1] = 0.0;
-                        m--;
-                        IterationTimes = 0;
-                    }
-                    else if (t == m - 2)
-                    {
-                        double b = -(mat[ii] + mat[tt]);
-                        double c = mat[ii] * mat[tt] - mat[jj] * mat[kk];
-                        double w = b * b - 4.0 * c;
-                        double y = Math.Sqrt(Math.Abs(w));
+                        int t = m - 1;
+                        while ((t > 0) &&
+                            (Math.Abs(mat[t * nCols + t - 1])
+                            > Precision * (Math.Abs(mat[(t - 1) * nCols + t - 1]) + Math.Abs(mat[t * nCols + t]))))
+                            t--;
 
-                        if (w > 0.0)
+                        int ii = (m - 1) * nCols + (m - 1);
+                        int jj = (m - 1) * nCols + (m - 2);
+                        int kk = (m - 2) * nCols + (m - 1);
+                        int tt = (m - 2) * nCols + (m - 2);
+
+                        if (t == m - 1)
                         {
-                            xy = 1.0;
-                            if (b < 0.0)
-                                xy = -1.0;
-                            Real[m - 1] = (-b - xy * y) / 2.0;
-                            Real[m - 2] = c / Real[m - 1];
+                            Real[m - 1] = mat[(m - 1) * nCols + (m - 1)];
                             Imaginary[m - 1] = 0.0;
-                            Imaginary[m - 2] = 0.0;
+                            m--;
+                            IterationTimes = 0;
                         }
-                        else
+                        else if (t == m - 2)
                         {
-                            Real[m - 1] = -b / 2.0;
-                            Real[m - 2] = Real[m - 1];
-                            Imaginary[m - 1] = y / 2.0;
-                            Imaginary[m - 2] = -Imaginary[m - 1];
-                        }
+                            double b = -(mat[ii] + mat[tt]);
+                            double c = mat[ii] * mat[tt] - mat[jj] * mat[kk];
+                            double w = b * b - 4.0 * c;
+                            double y = Math.Sqrt(Math.Abs(w));
 
-                        m -= 2;
-                        IterationTimes = 0;
-                    }
-                    else
-                    {
-                        if (IterationTimes > MaxTimes)
-                            throw new Exception(string.Format("迭代了{0}次，可还是没解出来……", IterationTimes));
-
-                        IterationTimes++;
-
-                        for (int j = t + 2; j < m; j++)
-                            mat[j * nCols + j - 2] = 0.0;
-                        for (int j = t + 3; j < m; j++)
-                            mat[j * nCols + j - 3] = 0.0;
-
-                        for (int k = t; k < m - 1; k++)
-                        {
-                            if (k != t)
+                            if (w > 0.0)
                             {
-                                p = mat[k * nCols + k - 1];
-                                q = mat[(k + 1) * nCols + k - 1];
-                                r = 0.0;
-                                if (k != m - 2)
-                                    r = mat[(k + 2) * nCols + k - 1];
+                                xy = 1.0;
+                                if (b < 0.0)
+                                    xy = -1.0;
+                                Real[m - 1] = (-b - xy * y) / 2.0;
+                                Real[m - 2] = c / Real[m - 1];
+                                Imaginary[m - 1] = 0.0;
+                                Imaginary[m - 2] = 0.0;
                             }
                             else
                             {
-                                double x = mat[ii] + mat[tt];
-                                double y = mat[tt] * mat[ii] - mat[kk] * mat[jj];
-
-                                ii = t * nCols + t;
-                                jj = t * nCols + t + 1;
-                                kk = (t + 1) * nCols + t;
-                                tt = (t + 1) * nCols + t + 1;
-
-                                p = mat[ii] * (mat[ii] - x)
-                                    + mat[jj] * mat[kk] + y;
-                                q = mat[kk] * (mat[ii] + mat[tt] - x);
-                                r = mat[kk] * mat[(t + 2) * nCols + t + 1];
+                                Real[m - 1] = -b / 2.0;
+                                Real[m - 2] = Real[m - 1];
+                                Imaginary[m - 1] = y / 2.0;
+                                Imaginary[m - 2] = -Imaginary[m - 1];
                             }
 
-                            if ((Math.Abs(p) + Math.Abs(q) + Math.Abs(r)) != 0.0)
+                            m -= 2;
+                            IterationTimes = 0;
+                        }
+                        else
+                        {
+                            if (IterationTimes > MaxTimes)
+                                throw new Exception(string.Format("迭代了{0}次，可还是没解出来……", IterationTimes));
+
+                            IterationTimes++;
+
+                            for (int j = t + 2; j < m; j++)
+                                mat[j * nCols + j - 2] = 0.0;
+                            for (int j = t + 3; j < m; j++)
+                                mat[j * nCols + j - 3] = 0.0;
+
+                            for (int k = t; k < m - 1; k++)
                             {
-                                xy = 1.0;
-                                if (p < 0.0)
-                                    xy = -1.0;
-                                double s = xy * Math.Sqrt(p * p + q * q + r * r);
                                 if (k != t)
-                                    mat[k * nCols + k - 1] = -s;
-
-                                double e = -q / s;
-                                double f = -r / s;
-                                double x = -p / s;
-                                double y = -x - f * r / (p + s);
-                                double g = e * r / (p + s);
-                                double z = -x - e * q / (p + s);
-
-                                for (int j = k; j < m; j++)
                                 {
-                                    ii = k * nCols + j;
-                                    jj = (k + 1) * nCols + j;
-                                    p = x * mat[ii] + e * mat[jj];
-                                    q = e * mat[ii] + y * mat[jj];
-                                    r = f * mat[ii] + g * mat[jj];
-
+                                    p = mat[k * nCols + k - 1];
+                                    q = mat[(k + 1) * nCols + k - 1];
+                                    r = 0.0;
                                     if (k != m - 2)
-                                    {
-                                        kk = (k + 2) * nCols + j;
-                                        p += f * mat[kk];
-                                        q += g * mat[kk];
-                                        r += z * mat[kk];
-                                        mat[kk] = r;
-                                    }
+                                        r = mat[(k + 2) * nCols + k - 1];
+                                }
+                                else
+                                {
+                                    double x = mat[ii] + mat[tt];
+                                    double y = mat[tt] * mat[ii] - mat[kk] * mat[jj];
 
-                                    mat[jj] = q;
-                                    mat[ii] = p;
+                                    ii = t * nCols + t;
+                                    jj = t * nCols + t + 1;
+                                    kk = (t + 1) * nCols + t;
+                                    tt = (t + 1) * nCols + t + 1;
+
+                                    p = mat[ii] * (mat[ii] - x)
+                                        + mat[jj] * mat[kk] + y;
+                                    q = mat[kk] * (mat[ii] + mat[tt] - x);
+                                    r = mat[kk] * mat[(t + 2) * nCols + t + 1];
                                 }
 
-                                int u = k + 3;
-                                if (u >= m - 1)
-                                    u = m - 1;
-
-                                for (int i = t; i <= u; i++)
+                                if ((Math.Abs(p) + Math.Abs(q) + Math.Abs(r)) != 0.0)
                                 {
-                                    ii = i * nCols + k;
-                                    jj = i * nCols + k + 1;
-                                    p = x * mat[ii] + e * mat[jj];
-                                    q = e * mat[ii] + y * mat[jj];
-                                    r = f * mat[ii] + g * mat[jj];
+                                    xy = 1.0;
+                                    if (p < 0.0)
+                                        xy = -1.0;
+                                    double s = xy * Math.Sqrt(p * p + q * q + r * r);
+                                    if (k != t)
+                                        mat[k * nCols + k - 1] = -s;
 
-                                    if (k != m - 2)
+                                    double e = -q / s;
+                                    double f = -r / s;
+                                    double x = -p / s;
+                                    double y = -x - f * r / (p + s);
+                                    double g = e * r / (p + s);
+                                    double z = -x - e * q / (p + s);
+
+                                    for (int j = k; j < m; j++)
                                     {
-                                        kk = i * nCols + k + 2;
-                                        p += f * mat[kk];
-                                        q += g * mat[kk];
-                                        r += z * mat[kk];
-                                        mat[kk] = r;
+                                        ii = k * nCols + j;
+                                        jj = (k + 1) * nCols + j;
+                                        p = x * mat[ii] + e * mat[jj];
+                                        q = e * mat[ii] + y * mat[jj];
+                                        r = f * mat[ii] + g * mat[jj];
+
+                                        if (k != m - 2)
+                                        {
+                                            kk = (k + 2) * nCols + j;
+                                            p += f * mat[kk];
+                                            q += g * mat[kk];
+                                            r += z * mat[kk];
+                                            mat[kk] = r;
+                                        }
+
+                                        mat[jj] = q;
+                                        mat[ii] = p;
                                     }
 
-                                    mat[jj] = q;
-                                    mat[ii] = p;
+                                    int u = k + 3;
+                                    if (u >= m - 1)
+                                        u = m - 1;
+
+                                    for (int i = t; i <= u; i++)
+                                    {
+                                        ii = i * nCols + k;
+                                        jj = i * nCols + k + 1;
+                                        p = x * mat[ii] + e * mat[jj];
+                                        q = e * mat[ii] + y * mat[jj];
+                                        r = f * mat[ii] + g * mat[jj];
+
+                                        if (k != m - 2)
+                                        {
+                                            kk = i * nCols + k + 2;
+                                            p += f * mat[kk];
+                                            q += g * mat[kk];
+                                            r += z * mat[kk];
+                                            mat[kk] = r;
+                                        }
+
+                                        mat[jj] = q;
+                                        mat[ii] = p;
+                                    }
                                 }
                             }
                         }
                     }
-                }
             }
-            return new MatrixEigenValue
-            {
+            return new MatrixEigenValue {
                 Real = Real,
                 Imaginary = Imaginary
             };
         }
+
         /// <summary>
         /// 零矩阵
         /// </summary>
@@ -504,6 +523,7 @@ namespace LinearAlgebra
         {
             return new double[nRows, nCols];
         }
+
         /// <summary>
         /// 零矩阵（方阵）
         /// </summary>
@@ -513,6 +533,7 @@ namespace LinearAlgebra
         {
             return Zeros(n, n);
         }
+
         /// <summary>
         /// 元素全为一的矩阵
         /// </summary>
@@ -523,6 +544,7 @@ namespace LinearAlgebra
         {
             return SpecialMatrices.Ones(nRows, nCols);
         }
+
         /// <summary>
         /// 元素全为一的矩阵（方阵）
         /// </summary>
@@ -532,6 +554,7 @@ namespace LinearAlgebra
         {
             return Ones(n, n);
         }
+
         /// <summary>
         /// 单位矩阵
         /// </summary>
@@ -542,6 +565,7 @@ namespace LinearAlgebra
         {
             return SpecialMatrices.Eye(nRows, nCols);
         }
+
         /// <summary>
         /// 单位矩阵（方阵）
         /// </summary>
@@ -551,14 +575,30 @@ namespace LinearAlgebra
         {
             return Eye(n, n);
         }
+
+        /// <summary>
+        /// 生成随机矩阵
+        /// </summary>
+        /// <param name="nRows">行数</param>
+        /// <param name="nCols">列数</param>
+        /// <returns></returns>
         public static Matrix Random(int nRows, int nCols)
         {
             return SpecialMatrices.RandomMatrix(nRows, nCols);
         }
+
+        /// <summary>
+        /// 生成随机矩阵
+        /// </summary>
+        /// <param name="nRows">行数</param>
+        /// <param name="nCols">列数</param>
+        /// <param name="seed">种子</param>
+        /// <returns></returns>
         public static Matrix Random(int nRows, int nCols, int seed)
         {
             return SpecialMatrices.RandomMatrix(nRows, nCols, seed);
         }
+
         /// <summary>
         /// 交换矩阵的两个指定位置的元素
         /// </summary>
@@ -571,6 +611,7 @@ namespace LinearAlgebra
             x[u] = x[v];
             x[v] = z;
         }
+
         /// <summary>
         /// 交换数组的两个指定位置的元素
         /// </summary>
@@ -583,6 +624,7 @@ namespace LinearAlgebra
             x[i] = x[j];
             x[j] = z;
         }
+
         private static unsafe void SwapRow(double* x, int i, int j, int nCols)
         {
             int u = i * nCols, v = j * nCols;
@@ -593,6 +635,7 @@ namespace LinearAlgebra
                 v++;
             }
         }
+
         private static unsafe void SwapColumn(double* x, int i, int j, int nRows, int nCols)
         {
             int u = i, v = j;
@@ -603,6 +646,7 @@ namespace LinearAlgebra
                 v += nCols;
             }
         }
+
         /// <summary>
         /// 纵向拼接相同列数的矩阵
         /// </summary>
@@ -612,6 +656,7 @@ namespace LinearAlgebra
         {
             return Utility.rBind(Matrices);
         }
+
         /// <summary>
         /// 横向拼接相同行数的矩阵
         /// </summary>
@@ -621,6 +666,7 @@ namespace LinearAlgebra
         {
             return Utility.cBind(Matrices);
         }
+
         /// <summary>
         /// 根据函数，将原矩阵的值映射到新矩阵上
         /// </summary>
@@ -637,43 +683,83 @@ namespace LinearAlgebra
                 fixed (double* mat = elements)
                 fixed (double* result = res)
                     for (int i = 0; i < count; i++)
-                    result[i] = f(mat[i]);
+                        result[i] = f(mat[i]);
             }
             return res;
         }
-        IEnumerator<Double> IEnumerable<Double>.GetEnumerator()
+
+        IEnumerator<double> IEnumerable<double>.GetEnumerator()
         {
             foreach (var item in elements)
                 yield return item;
         }
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             yield return this.AsEnumerable();
         }
+
+        /// <summary>
+        /// 获取第index行
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public IEnumerable<double> GetRow(int index)
         {
             return SubMat.GetRow(index);
         }
+
+        /// <summary>
+        /// 获取第index列
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public IEnumerable<double> GetColumn(int index)
         {
             return SubMat.GetColumn(index);
         }
+
+        /// <summary>
+        /// 获取对角元
+        /// </summary>
+        /// <param name="mainDiagonal"></param>
+        /// <returns></returns>
         public IEnumerable<double> GetDiagonal(bool mainDiagonal = true)
         {
             return SubMat.GetDiagonal(mainDiagonal);
         }
+
+        /// <summary>
+        /// 将第index行设置值
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="data"></param>
         public void SetRow(int index, IEnumerable<double> data)
         {
             SubMat.SetRow(index, data);
         }
+
+        /// <summary>
+        /// 将第index列设置值
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="data"></param>
         public void SetColumn(int index, IEnumerable<double> data)
         {
             SubMat.SetColumn(index, data);
         }
+
+        /// <summary>
+        /// 将对角元设置值
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="mainDiagonal"></param>
         public void SetDiagonal(IEnumerable<double> data, bool mainDiagonal = true)
         {
             SubMat.SetDiagonal(data, mainDiagonal);
         }
+
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
         /// <summary>
         /// 矩阵判等
         /// </summary>
@@ -690,13 +776,14 @@ namespace LinearAlgebra
                     fixed (double* a = elements)
                     fixed (double* b = other.elements)
                         for (int i = Count - 1; i >= 0; i--)
-                        if (Math.Abs(a[i] - b[i]) > eps)//考虑浮点数的误差
-                            return false;
+                            if (Math.Abs(a[i] - b[i]) > eps)//考虑浮点数的误差
+                                return false;
                 }
                 return true;
             }
             else return false;
         }
+
         /// <summary>
         /// 将矩阵以字符串的形式输出
         /// </summary>
@@ -728,33 +815,7 @@ namespace LinearAlgebra
                 sum += Math.Abs(item);
             return (int)Math.Sqrt(sum);
         }
-        /// <summary>
-        /// 从文本文件中加载矩阵
-        /// </summary>
-        /// <param name="filePath">文件路径</param>
-        /// <param name="encoding">编码</param>
-        /// <returns></returns>
-        public static Matrix Load(string filePath, Encoding encoding)
-        {
-            return MatrixIO.Load(filePath, encoding);
-        }
-        /// <summary>
-        /// 从文本文件中加载矩阵
-        /// </summary>
-        /// <param name="filePath">文件路径</param>
-        /// <returns></returns>
-        public static Matrix Load(string filePath)
-        {
-            return Load(filePath, Encoding.Default);
-        }
-        /// <summary>
-        /// 保存矩阵
-        /// </summary>
-        /// <param name="filePath">文件路径</param>
-        public void Save(string filePath)
-        {
-            MatrixIO.Save(elements, filePath);
-        }
+
         public double[][] ToJaggedArray()
         {
             int nRows = RowCount;
@@ -766,6 +827,37 @@ namespace LinearAlgebra
                 Buffer.BlockCopy(elements, i * nCols * DOUBLE_SIZE, arr[i], 0, nCols * DOUBLE_SIZE);
             }
             return arr;
+        }
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
+
+        /// <summary>
+        /// 从文本文件中加载矩阵
+        /// </summary>
+        /// <param name="filePath">文件路径</param>
+        /// <param name="encoding">编码</param>
+        /// <returns></returns>
+        public static Matrix Load(string filePath, Encoding encoding)
+        {
+            return MatrixIO.Load(filePath, encoding);
+        }
+
+        /// <summary>
+        /// 从文本文件中加载矩阵
+        /// </summary>
+        /// <param name="filePath">文件路径</param>
+        /// <returns></returns>
+        public static Matrix Load(string filePath)
+        {
+            return Load(filePath, Encoding.Default);
+        }
+
+        /// <summary>
+        /// 保存矩阵
+        /// </summary>
+        /// <param name="filePath">文件路径</param>
+        public void Save(string filePath)
+        {
+            MatrixIO.Save(elements, filePath);
         }
     }
 }

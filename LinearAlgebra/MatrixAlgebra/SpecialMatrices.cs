@@ -9,8 +9,8 @@ namespace LinearAlgebra.MatrixAlgebra
             unsafe
             {
                 fixed (double* m = mat)
-                for (int i = nRows * nCols - 1; i >= 0; i--)
-                    m[i] = 1.0;
+                    for (int i = nRows * nCols - 1; i >= 0; i--)
+                        m[i] = 1.0;
             }
             return mat;
         }
@@ -38,7 +38,7 @@ namespace LinearAlgebra.MatrixAlgebra
             {
                 fixed (double* m = mat)
                     for (int i = 0; i < n; i++)
-                    m[i] = rnd.NextDouble();
+                        m[i] = rnd.NextDouble();
             }
             return mat;
         }

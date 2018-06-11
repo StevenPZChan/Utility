@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
@@ -12,6 +13,7 @@ namespace Utility.Cameras
     /// <summary>
     /// Basler相机属性设置控件
     /// </summary>
+    [ToolboxBitmap(typeof(BaslerCamProperty), "Basler.ico")]
     public partial class BaslerCamProperty : UserControl
     {
         /// <summary>
@@ -215,6 +217,7 @@ namespace Utility.Cameras
     /// <summary>
     /// Basler相机辅助类
     /// </summary>
+    [ToolboxBitmap(typeof(BaslerCam), "Basler.ico")]
     public class BaslerCam : Component
     {
         #region 属性

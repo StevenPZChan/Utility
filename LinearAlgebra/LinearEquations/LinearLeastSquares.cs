@@ -5,28 +5,46 @@ using System.Threading.Tasks;
 using LinearAlgebra.MatrixAlgebra;
 namespace LinearAlgebra.LinearEquations
 {
+    /// <summary>
+    /// 最小二乘法
+    /// </summary>
     public class LinearLeastSquares
     {
+        /// <summary>
+        /// 解向量
+        /// </summary>
         public double[] Beta { get; private set; }
+        /// <summary>
+        /// 总离差平方和
+        /// </summary>
         public double TSS { get; private set; }
+        /// <summary>
+        /// 残差平方和
+        /// </summary>
         public double ESS { get; private set; }
+        /// <summary>
+        /// 回归平方和
+        /// </summary>
         public double RSS { get; private set; }
+        /// <summary>
+        /// 变量数
+        /// </summary>
         public int VariableCount { get; private set; }
+        /// <summary>
+        /// 方程数
+        /// </summary>
         public int Obs { get; private set; }
-        public double F
-        {
-            get
-            {
-                return (RSS * (Obs - VariableCount - 1)) / (ESS * VariableCount);
-            }
-        }
-        public double Rsq
-        {
-            get
-            {
-                return RSS / TSS;
-            }
-        }
+        /// <summary>
+        /// F-检验
+        /// </summary>
+        public double F { get { return (RSS * (Obs - VariableCount - 1)) / (ESS * VariableCount); } }
+        /// <summary>
+        /// 相关系数
+        /// </summary>
+        public double Rsq { get { return RSS / TSS; } }
+        /// <summary>
+        /// 调整相关系数？
+        /// </summary>
         public double AdjRsq
         {
             get
@@ -36,6 +54,13 @@ namespace LinearAlgebra.LinearEquations
                 return 1.0 - (1.0 - Rsq) * ((n - 1.0) / (n - k - 1.0));
             }
         }
+
+        /// <summary>
+        /// 求解方程组的最小二乘法
+        /// X * X = Y
+        /// </summary>
+        /// <param name="X">系数矩阵</param>
+        /// <param name="Y">常数向量</param>
         public LinearLeastSquares(Matrix X, double[] Y)
         {
             int xRows = X.RowCount;
@@ -51,6 +76,7 @@ namespace LinearAlgebra.LinearEquations
             ESS = SSE(R, xCols);
             RSS = TSS - ESS;
         }
+
         private static double[] BackSolve(double[,] R, int n)//回代
         {
             var beta = new double[n];
@@ -64,6 +90,7 @@ namespace LinearAlgebra.LinearEquations
             }
             return beta;
         }
+
         private static double[,] BindXY(Matrix X, double[] Y)//拼接X矩阵与Y矩阵
         {
             int xRows = X.RowCount;
@@ -89,6 +116,8 @@ namespace LinearAlgebra.LinearEquations
             }
             return XY;
         }
+
+#pragma warning disable CS1591 // 缺少对公共可见类型或成员的 XML 注释
         public override string ToString()
         {
             var s = new StringBuilder(string.Concat("Y = ", Beta[0].ToString("F6")));
@@ -103,6 +132,8 @@ namespace LinearAlgebra.LinearEquations
                 .AppendFormat("R^2 = {0:F6}\tAdjusted R^2 = {1:F6}", Rsq, AdjRsq);
             return s.ToString();
         }
+#pragma warning restore CS1591 // 缺少对公共可见类型或成员的 XML 注释
+
         private static double[,] QR(double[,] mat)//QR分解
         {
             const double eps = 1e-9;
@@ -164,6 +195,7 @@ namespace LinearAlgebra.LinearEquations
             }
             return R;//返回R矩阵
         }
+
         private static double SST(double[] Y)
         {
             double yBar = Y.Average();
@@ -179,6 +211,7 @@ namespace LinearAlgebra.LinearEquations
             }
             return sum;
         }
+
         private static double SSE(double[,] R, int xCols)
         {
             double sum = 0.0;

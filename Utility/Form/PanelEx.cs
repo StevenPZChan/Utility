@@ -8,6 +8,7 @@ namespace Utility.Form
     /// <summary>
     /// 可设置边框样式的Panel
     /// </summary>
+    [ToolboxBitmap(typeof(Panel))]
     public class PanelEx : Panel
     {
         private Color borderColor;

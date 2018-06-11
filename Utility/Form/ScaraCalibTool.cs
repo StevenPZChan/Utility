@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -12,6 +13,7 @@ namespace Utility.Form
     /// <summary>
     /// 四轴SCARA机器人标定助手
     /// </summary>
+    [ToolboxBitmap(typeof(ScaraCalibTool), "TSAssist.ico")]
     public partial class ScaraCalibTool : UserControl
     {
         /// <summary>

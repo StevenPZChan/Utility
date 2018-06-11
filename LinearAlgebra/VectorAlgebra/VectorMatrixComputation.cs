@@ -16,13 +16,13 @@ namespace LinearAlgebra.VectorAlgebra
                     fixed (double* x = X.Elements)
                     fixed (double* y = Y.Elements)
                     fixed (double* z = Z)
-                    for (int j = 0; j < nCols; j++)
-                    {
-                        double sum = 0.0;
-                        for (int i = 0; i < n; i++)
-                            sum += x[i] * y[i * nCols + j];
-                        z[j] = sum;
-                    }
+                        for (int j = 0; j < nCols; j++)
+                        {
+                            double sum = 0.0;
+                            for (int i = 0; i < n; i++)
+                                sum += x[i] * y[i * nCols + j];
+                            z[j] = sum;
+                        }
                 }
                 return new Vector(Z, VectorType.Row);
             }
@@ -41,9 +41,9 @@ namespace LinearAlgebra.VectorAlgebra
                     fixed (double* x = X.Elements)
                     fixed (double* y = Y.Elements)
                     fixed (double* z = Z)
-                    for (int j = 0; j < nCols; j++)
-                        for (int i = 0; i < nRows; i++)
-                            z[i * nCols + j] = x[i] * y[j];
+                        for (int j = 0; j < nCols; j++)
+                            for (int i = 0; i < nRows; i++)
+                                z[i * nCols + j] = x[i] * y[j];
                 }
                 return Z;
             }
@@ -62,9 +62,9 @@ namespace LinearAlgebra.VectorAlgebra
                     fixed (double* x = X.Elements)
                     fixed (double* y = Y.Elements)
                     fixed (double* z = Z)
-                    for (int j = 0; j < nCols; j++)
-                        for (int i = 0; i < nRows; i++)
-                            z[i * nCols + j] = x[i] * y[j];
+                        for (int j = 0; j < nCols; j++)
+                            for (int i = 0; i < nRows; i++)
+                                z[i * nCols + j] = x[i] * y[j];
                 }
                 return Z;
             }
@@ -83,13 +83,13 @@ namespace LinearAlgebra.VectorAlgebra
                     fixed (double* x = X.Elements)
                     fixed (double* y = Y.Elements)
                     fixed (double* z = Z)
-                    for (int i = 0; i < nRows; i++)
-                    {
-                        double sum = 0.0;
-                        for (int j = 0; j < nCols; j++)
-                            sum += x[i * nCols + j] * y[j];
-                        Z[i] = sum;
-                    }
+                        for (int i = 0; i < nRows; i++)
+                        {
+                            double sum = 0.0;
+                            for (int j = 0; j < nCols; j++)
+                                sum += x[i * nCols + j] * y[j];
+                            Z[i] = sum;
+                        }
                 }
                 return new Vector(Z, VectorType.Column);
             }

@@ -2,18 +2,21 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design.Serialization;
+using System.Drawing;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace Utility.IOs
 {
     /// <summary>
     /// 异步TCP客户端
     /// </summary>
+    [ToolboxBitmap(typeof(WebBrowser))]
     public class AsyncTcpClient : Component, IDisposable
     {
         #region Fields

@@ -74,6 +74,7 @@ namespace Utility.Form
     /// <summary>
     /// 勾选框型编辑块
     /// </summary>
+    [ToolboxBitmap(typeof(CheckBox))]
     public partial class CCheckBox : CEdit
     {
         /// <summary>
@@ -119,6 +120,7 @@ namespace Utility.Form
     /// <summary>
     /// 下拉框型编辑块
     /// </summary>
+    [ToolboxBitmap(typeof(ComboBox))]
     public partial class CComboBox : CEdit
     {
         /// <summary>
@@ -199,6 +201,7 @@ namespace Utility.Form
     /// <summary>
     /// 数字型编辑块
     /// </summary>
+    [ToolboxBitmap(typeof(NumericUpDown))]
     public partial class CNumericUpDown : CEdit
     {
         /// <summary>
@@ -264,6 +267,7 @@ namespace Utility.Form
     /// <summary>
     /// 图片型编辑块
     /// </summary>
+    [ToolboxBitmap(typeof(PictureBox))]
     public partial class CPictureBox : CEdit
     {
         /// <summary>
@@ -303,6 +307,7 @@ namespace Utility.Form
     /// <summary>
     /// 文本框型编辑块
     /// </summary>
+    [ToolboxBitmap(typeof(TextBox))]
     public partial class CTextBox : CEdit
     {
         /// <summary>

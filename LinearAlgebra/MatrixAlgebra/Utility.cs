@@ -6,7 +6,7 @@ namespace LinearAlgebra.MatrixAlgebra
 {
     internal static class Utility
     {
-        const int DOUBLE_SIZE = sizeof(double);
+        private const int DOUBLE_SIZE = sizeof(double);
         /// <summary>
         /// 交换矩阵的两个指定位置的元素
         /// </summary>
@@ -65,28 +65,28 @@ namespace LinearAlgebra.MatrixAlgebra
             int count = nRows * nCols;
             if (count != Elements.Length)
                 throw new Exception("输入的元素与设置的矩阵大小不匹配");
-            var mat = new Double[nRows, nCols];
+            var mat = new double[nRows, nCols];
             Buffer.BlockCopy(Elements, 0, mat, 0, DOUBLE_SIZE * count);
             return mat;
         }
         internal static double[,] IEnumerableToMatrix(int nRows, int nCols, IEnumerable<double> Elements)
         {
             int count = nRows * nCols;
-            var M = new Double[nRows, nCols];
+            var M = new double[nRows, nCols];
             unsafe
             {
                 fixed (double* mat = M)
-                using (var x = Elements.GetEnumerator())
-                {
-                    for (int i = 0; i < count; i++)
+                    using (var x = Elements.GetEnumerator())
                     {
-                        if (!x.MoveNext())
+                        for (int i = 0; i < count; i++)
+                        {
+                            if (!x.MoveNext())
+                                throw new Exception("输入的元素与设置的矩阵大小不匹配");
+                            mat[i] = x.Current;
+                        }
+                        if (x.MoveNext())
                             throw new Exception("输入的元素与设置的矩阵大小不匹配");
-                        mat[i] = x.Current;
                     }
-                    if (x.MoveNext())
-                        throw new Exception("输入的元素与设置的矩阵大小不匹配");
-                }
             }
             return M;
         }
@@ -124,13 +124,13 @@ namespace LinearAlgebra.MatrixAlgebra
         }
         internal static double[,] CopyMatrix(this double[,] mat)
         {
-            var NewMatrix = new Double[mat.RowCount(), mat.ColumnCount()];
+            var NewMatrix = new double[mat.RowCount(), mat.ColumnCount()];
             Array.Copy(mat, NewMatrix, mat.Length);
             return NewMatrix;
         }
         internal static double[] CopyVector(this double[] vector)
         {
-            var NewVector = new Double[vector.Length];
+            var NewVector = new double[vector.Length];
             Array.Copy(vector, NewVector, vector.Length);
             return NewVector;
         }

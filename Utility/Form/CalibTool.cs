@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Windows.Forms;
 using HalconDotNet;
 
@@ -12,6 +13,7 @@ namespace Utility.Form
     /// 然后订阅事件[CalibTool对象].SnapshotEvent += MySnapshot();
     /// 可选：回调函数中调用[CalibTool对象].DisplayContinuous(ho_Image);
     /// </summary>
+    [ToolboxBitmap(typeof(CalibTool), "hdevelop_icon.ico")]
     public partial class CalibTool : UserControl
     {
         /// <summary>
