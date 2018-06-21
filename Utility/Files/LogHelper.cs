@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Utility.Files
@@ -17,7 +18,7 @@ namespace Utility.Files
         /// <param name="ex">异常类</param>
         /// <param name="path">日志路径</param>
         /// <returns>日志文件名</returns>
-        public static string CreateLog(Exception ex, string path)
+        private static string CreateLog(Exception ex, string path)
         {
             if (path == "")
                 path = Application.StartupPath + "\\log";
@@ -36,7 +37,7 @@ namespace Utility.Files
         /// </summary>
         /// <param name="ex">异常类</param>
         /// <param name="path">日志文件存放路径</param>
-        private static void WriteLogInfo(Exception ex, string path = "")
+        public static void WriteLogInfo(Exception ex, string path = "")
         {
             string logAddress = CreateLog(ex, path);
             using (StreamWriter sw = new StreamWriter(logAddress, true, Encoding.Default))
@@ -69,15 +70,12 @@ namespace Utility.Files
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             //处理UI线程异常
             Application.ThreadException += Application_ThreadException;
-            //处理未捕获的异常
+            //处理其他线程未捕获的异常
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            //处理Task未捕获的异常，GC调用时才会触发
+            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
         }
-
-        /// <summary>
-        /// 处理UI线程异常
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        
         private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
         {
             WriteLogInfo(e.Exception as Exception);
@@ -85,18 +83,25 @@ namespace Utility.Files
             Application.Exit();
             Environment.Exit(0);
         }
-
-        /// <summary>
-        /// 处理未捕获的异常
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             WriteLogInfo(e.ExceptionObject as Exception);
-            MessageBox.Show("发生错误：" + ((Exception)e.ExceptionObject).Message + "，请查看程序日志！", "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            Application.Exit();
-            Environment.Exit(0);
+            //发生致命错误时才反馈信息并关闭程序
+            if (e.IsTerminating)
+            {
+                MessageBox.Show("发生错误：" + ((Exception)e.ExceptionObject).Message + "，请查看程序日志！", "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Application.Exit();
+                Environment.Exit(0);
+            }
+        }
+
+        private static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        {
+            foreach (Exception ex in e.Exception.InnerExceptions)
+                WriteLogInfo(ex);
+            //将异常标识为已经观察到  
+            e.SetObserved();
         }
     }
 }
