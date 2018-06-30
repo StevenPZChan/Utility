@@ -88,7 +88,7 @@ namespace Utility.Form
             HImage ho_Image = SnapshotEvent.Invoke();
             int num = Images.Count;
             Images.Add(ho_Image);
-            listBox1.Items.Add("图像 " + (num + 1).ToString("d2"));
+            listBox1.Items.Add($"图像 {(num + 1):d2}");
             listBox1.SelectedIndex = num;
         }
 
@@ -147,13 +147,13 @@ namespace Utility.Form
             }
             catch (Exception ex)
             {
-                MessageBox.Show("出现错误：" + ex.Message + "，请检查标定数据！", "错误信息", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"出现错误：{ex.Message}，请检查标定数据！", "错误信息", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             buttonSave.Enabled = Errors > 0 && Errors < 1;
             if (Errors < 1)
-                MessageBox.Show("标定成功！误差为" + Errors.ToString("f") + "pixel，请保存！", "标定成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"标定成功！误差为{Errors:f}pixel，请保存！", "标定成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void buttonSave_Click(object sender, EventArgs e)

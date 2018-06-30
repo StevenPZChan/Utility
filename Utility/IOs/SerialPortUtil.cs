@@ -574,8 +574,7 @@ namespace Utility.IOs
         /// <returns></returns>
         public static string Format(SerialPort port)
         {
-            return string.Format("{0} ({1},{2},{3},{4},{5})",
-                port.PortName, port.BaudRate, port.DataBits, port.StopBits, port.Parity, port.Handshake);
+            return $"{port.PortName} ({port.BaudRate},{port.DataBits},{port.StopBits},{port.Parity},{port.Handshake}";
         }
     }
 

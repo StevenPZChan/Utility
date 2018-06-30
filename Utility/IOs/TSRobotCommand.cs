@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
+using System.Threading.Tasks;
 using TsRemoteLib;
 
 namespace Utility.IOs
@@ -135,11 +135,11 @@ namespace Utility.IOs
         {
             get
             {
-                string ovrd = Override.ToString("0\\%");
+                string ovrd = $"{Override}%";
                 string runmode = status.RunMode == 0 ? "CONT" : (status.RunMode == 1 ? "CYCLE" : (status.RunMode == 2 ? "STEP" : "SEGMENT"));
                 string runstatus = status.RunStatus == 0 ? "STOP(RESET)"
                     : (status.RunStatus == 1 ? "RUN" : (status.RunStatus == 2 ? "STOP(RETRY)" : "STOP(CONT)"));
-                return ovrd + " " + runmode + ":" + runstatus;
+                return $"{ovrd} {runmode}:{runstatus}";
             }
         }
         /// <summary>
@@ -301,7 +301,7 @@ namespace Utility.IOs
                 List<TsAlarm> currentAlarms = GetCurrentAlarm();
                 string alarmmessage = "";
                 foreach (TsAlarm alarm in currentAlarms)
-                    alarmmessage += alarm.Date.ToString() + " " + alarm.AlarmNo + " " + alarm.AlarmMes + "\r\n";
+                    alarmmessage += $"{alarm.Date} {alarm.AlarmNo} {alarm.AlarmMes}\r\n";
                 Alarm?.Invoke(this, alarmmessage);
             }
             if (status.BreakCommand == 1 || status.StopCommand == 1)
@@ -313,7 +313,7 @@ namespace Utility.IOs
             if (status.EtherNetConnection == 1)
             {
                 WatchDogStop();
-                Thread.Sleep(1000);
+                Task.Delay(1000).Wait();
                 Connect(1);
             }
         }

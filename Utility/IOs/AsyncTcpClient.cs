@@ -4,11 +4,12 @@ using System.ComponentModel;
 using System.ComponentModel.Design.Serialization;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Utility.IOs
@@ -234,7 +235,7 @@ namespace Utility.IOs
                     //Logger.Debug(string.Format(CultureInfo.InvariantCulture,
                     //  "Waiting {0} seconds before retrying to connect to server.",
                     //  RetryInterval));
-                    Thread.Sleep(TimeSpan.FromSeconds(RetryInterval));
+                    Task.Delay(TimeSpan.FromSeconds(RetryInterval)).Wait();
                     Connect();
                     return;
                 }
@@ -528,12 +529,7 @@ namespace Utility.IOs
         /// </returns>
         public override string ToString()
         {
-            string s = string.Empty;
-            foreach (var item in Addresses)
-            {
-                s = s + item.ToString() + ',';
-            }
-            s = s.TrimEnd(',');
+            string s = string.Join(",", Addresses.ToList());
             s = s + ":" + Port.ToString(CultureInfo.InvariantCulture);
 
             return s;
@@ -608,12 +604,7 @@ namespace Utility.IOs
         /// </returns>
         public override string ToString()
         {
-            string s = string.Empty;
-            foreach (var item in Addresses)
-            {
-                s = s + item.ToString() + ',';
-            }
-            s = s.TrimEnd(',');
+            string s = string.Join(",", Addresses.ToList());
             s = s + ":" + Port.ToString(CultureInfo.InvariantCulture);
 
             return s;
@@ -656,12 +647,7 @@ namespace Utility.IOs
         /// </returns>
         public override string ToString()
         {
-            string s = string.Empty;
-            foreach (var item in Addresses)
-            {
-                s = s + item.ToString() + ',';
-            }
-            s = s.TrimEnd(',');
+            string s = string.Join(",", Addresses.ToList());
             s = s + ":" + Port.ToString(CultureInfo.InvariantCulture);
 
             return s;

@@ -14,12 +14,11 @@ namespace Utility.Files
         /// </summary>
         /// <param name="file">文件名</param>
         /// <param name="version">版本号</param>
-        /// <param name="modifiedtime">修改时间</param>
-        public static void GetVersion(this string file, out string version, out DateTime modifiedtime)
+        /// <param name="versiontime">修改时间</param>
+        public static void GetVersion(this string file, out FileVersionInfo version, out DateTime versiontime)
         {
-            FileVersionInfo info = FileVersionInfo.GetVersionInfo(file);
-            version = string.Join(".", info.ProductMajorPart, info.ProductMinorPart, info.ProductBuildPart, info.ProductPrivatePart);
-            modifiedtime = new FileInfo(file).LastWriteTime;
+            version = FileVersionInfo.GetVersionInfo(file);
+            versiontime = new FileInfo(file).LastWriteTime;
         }
     }
 }

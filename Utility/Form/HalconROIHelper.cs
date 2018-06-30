@@ -242,7 +242,7 @@ namespace Utility.Form
                 hr.Dispose();
 
                 hRegion.Dispose();
-                hRegion = htemp.Clone();
+                hRegion = htemp.CopyObj(1, -1);
                 htemp.Dispose();
             }
             return hRegion;

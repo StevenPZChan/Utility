@@ -183,7 +183,7 @@ namespace Utility.Software
             }
             catch (Exception ex)
             {
-                throw new Exception("升级失败，原因是：" + ex.Message + "。请重试！", ex);
+                throw new Exception($"升级失败，原因是：{ex.Message}。请重试！", ex);
             }
             return updated;
         }

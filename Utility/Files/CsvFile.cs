@@ -41,7 +41,7 @@ namespace Utility.Files
                     string str = dt.Rows[i][j].ToString();
                     str = str.Replace("\"", "\"\"");//替换英文冒号 英文冒号需要换成两个冒号  
                     if (str.Contains(',') || str.Contains('"') || str.Contains('\r') || str.Contains('\n')) //含逗号 冒号 换行符的需要放到引号中
-                        str = string.Format("\"{0}\"", str);
+                        str = $"\"{str}\"";
 
                     data += str;
                     if (j < dt.Columns.Count - 1)

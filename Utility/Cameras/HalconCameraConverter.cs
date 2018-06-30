@@ -91,7 +91,9 @@ namespace Utility.Cameras
 
         private static void EndingImageReceived(IAsyncResult ar)
         {
-            ((HImage)ar.AsyncState).Dispose();
+            HImage ho_Image = (HImage)ar.AsyncState;
+            if (ho_Image.IsInitialized())
+                ho_Image.Dispose();
         }
     }
 

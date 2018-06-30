@@ -45,10 +45,12 @@ namespace Utility.Files
         /// <param name="quality">图像质量（限tiff和jpg等有损压缩格式）</param>
         public static void SavePic(this Bitmap bitmap, string filename, long quality = 95L)
         {
-            string f = filename.Substring(0, filename.LastIndexOf(@"\"));
+            int ind = filename.LastIndexOf(@"\");
+            string f = ind != -1 ? filename.Substring(0, ind) : Path.GetFullPath("Temp");
             if (!Directory.Exists(f))
                 Directory.CreateDirectory(f);
-            string subfix = filename.Substring(filename.LastIndexOf("."));
+            ind = filename.LastIndexOf(".");
+            string subfix = ind != -1 ? filename.Substring(ind) : "";
             EncoderParameters eps = new EncoderParameters(1);
             EncoderParameter ep;
             switch (subfix.ToLower())

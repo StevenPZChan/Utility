@@ -2,7 +2,7 @@
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using HalconDotNet;
 using TsRemoteLib;
@@ -134,7 +134,7 @@ namespace Utility.Form
             calData.Rows.Add(count++, 0, 0, 0, 0, 0);
         }
 
-        private void 交叉点ToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void 交叉点ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             HImage ho_ImageReduced;
             HRegion ho_Circle;
@@ -151,13 +151,13 @@ namespace Utility.Form
                 out hv_RowArea, out hv_ColumnArea, out hv_CoRRArea, out hv_CoRCArea, out hv_CoCCArea);
             if (hv_Row.Length == 1)
                 calData.Rows.Add(count++, hv_Row.D, hv_Column.D, 0, 0, 0);
-            Thread.Sleep(1000);
+            await Task.Delay(1000);
             processing = false;
             ho_ImageReduced.Dispose();
             ho_Circle.Dispose();
         }
 
-        private void 圆点中心ToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void 圆点中心ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             HImage ho_ImageReduced;
             HRegion ho_Circle, ho_Region, ho_ConnectedRegions, ho_SelectedRegions1, ho_SelectedRegions2, ho_RegionUnion;
@@ -180,7 +180,7 @@ namespace Utility.Form
             ho_ConnectedRegions = ho_RegionUnion.Connection();
             if (ho_ConnectedRegions.CountObj() == 1)
                 calData.Rows.Add(count++, ho_ConnectedRegions.Row.D, ho_ConnectedRegions.Column.D, 0, 0, 0);
-            Thread.Sleep(1000);
+            await Task.Delay(1000);
             processing = false;
             ho_ImageReduced.Dispose();
             ho_Circle.Dispose();
@@ -195,16 +195,20 @@ namespace Utility.Form
         {
             if (dataGridView1.SelectedRows.Count == 1)
             {
-                TsRemoteS robot = new TsRemoteS();
-                robot.SetIPaddr(0, IpAddress, Port);
-                robot.Connect(1);
-                TsPointS p = robot.GetPsnFbkWorld();
-                DataGridViewRow dr = dataGridView1.SelectedRows.OfType<DataGridViewRow>().Single();
-                calData.Rows[dr.Index]["x"] = p.X;
-                calData.Rows[dr.Index]["y"] = p.Y;
-                calData.Rows[dr.Index]["z"] = p.Z;
-                robot.Disconnect();
-                robot.Dispose();
+                Task.Run(() => {
+                    TsRemoteS robot = new TsRemoteS();
+                    robot.SetIPaddr(0, IpAddress, Port);
+                    robot.Connect(1);
+                    TsPointS p = robot.GetPsnFbkWorld();
+                    DataGridViewRow dr = dataGridView1.SelectedRows.OfType<DataGridViewRow>().Single();
+                    calData.Rows[dr.Index]["x"] = p.X;
+                    calData.Rows[dr.Index]["y"] = p.Y;
+                    calData.Rows[dr.Index]["z"] = p.Z;
+                    Task.Run(() => {
+                        robot.Disconnect();
+                        robot.Dispose();
+                    });
+                });
             }
         }
 
@@ -277,7 +281,7 @@ namespace Utility.Form
         {
             saveFileDialog1.DefaultExt = "dat";
             saveFileDialog1.FileName = "campose.dat";
-            saveFileDialog1.Filter= "外参数据文件 | *.*";
+            saveFileDialog1.Filter = "外参数据文件 | *.*";
             //HMisc.WriteCamPar(hv_CameraParam, "campar.cal");
             if (DialogResult.OK == saveFileDialog1.ShowDialog())
                 hv_Pose.WritePose(saveFileDialog1.FileName);

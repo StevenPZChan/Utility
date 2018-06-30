@@ -15,21 +15,19 @@ namespace Utility.Files
         /// <summary>
         /// 创建日志文件
         /// </summary>
-        /// <param name="ex">异常类</param>
         /// <param name="path">日志路径</param>
         /// <returns>日志文件名</returns>
-        private static string CreateLog(Exception ex, string path)
+        private static string CreateLog(string path)
         {
             if (path == "")
-                path = Application.StartupPath + "\\log";
+                path = Application.StartupPath + @"\log";
             if (!Directory.Exists(path))
             {
                 //创建日志文件夹
                 Directory.CreateDirectory(path);
             }
             //发生异常每天都创建一个单独的日子文件[*.log],每天的错误信息都在这一个文件里。方便查找
-            path += "\\" + DateTime.Now.ToString("yyyyMMdd") + ".log";
-            return path;
+            return $@"{path}\{DateTime.Now:yyyyMMdd}.log";
         }
 
         /// <summary>
@@ -39,12 +37,10 @@ namespace Utility.Files
         /// <param name="path">日志文件存放路径</param>
         public static void WriteLogInfo(Exception ex, string path = "")
         {
-            string logAddress = CreateLog(ex, path);
+            string logAddress = CreateLog(path);
             using (StreamWriter sw = new StreamWriter(logAddress, true, Encoding.Default))
             {
-                sw.WriteLine("*****************************************【"
-                               + DateTime.Now.ToLongTimeString()
-                               + "】*****************************************");
+                sw.WriteLine($"*****************************************【{DateTime.Now.ToLongTimeString()}】*****************************************");
                 if (ex != null)
                 {
                     sw.WriteLine("【ErrorType】" + ex.GetType());
@@ -79,7 +75,7 @@ namespace Utility.Files
         private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
         {
             WriteLogInfo(e.Exception as Exception);
-            MessageBox.Show("发生错误：" + e.Exception.Message + "，请查看程序日志！", "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"发生错误：{e.Exception.Message}，请查看程序日志！", "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             Application.Exit();
             Environment.Exit(0);
         }
@@ -90,7 +86,7 @@ namespace Utility.Files
             //发生致命错误时才反馈信息并关闭程序
             if (e.IsTerminating)
             {
-                MessageBox.Show("发生错误：" + ((Exception)e.ExceptionObject).Message + "，请查看程序日志！", "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"发生错误：{((Exception)e.ExceptionObject).Message}，请查看程序日志！", "系统错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Application.Exit();
                 Environment.Exit(0);
             }

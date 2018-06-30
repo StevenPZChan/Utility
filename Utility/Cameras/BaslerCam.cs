@@ -843,7 +843,7 @@ namespace Utility.Cameras
                 string s = c[CameraInfoKey.SerialNumber];
                 string n = c[CameraInfoKey.FriendlyName];
                 serial.Add(s);
-                display.Add(n + "(" + s + ")");
+                display.Add($"{n}({s})");
             }
         }
 

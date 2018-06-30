@@ -21,7 +21,7 @@ namespace Utility.Cameras
         [Browsable(true), Category("相机参数"), Description("相机自定义名称，可附加到回调函数")]
         public string DeviceName
         {
-            get { return Tag == null ? "" : Tag.ToString(); }
+            get { return Tag?.ToString(); }
             set { Tag = value; }
         }
         /// <summary>
@@ -467,7 +467,7 @@ namespace Utility.Cameras
             string serialNumber = "";
             Devices[0].GetSerialNumber(out serialNumber);
             XElement deviceInfo = new XElement("device", new XAttribute("name", Device),
-                new XAttribute("base_name", Devices[0].Name), new XAttribute("unique_name", Devices[0].Name + " " + serialNumber));
+                new XAttribute("base_name", Devices[0].Name), new XAttribute("unique_name", $"{Devices[0].Name} {serialNumber}"));
             deviceInfo.Add(new XElement("videoformat", VideoFormat));
             deviceInfo.Add(new XElement("fps", DeviceFrameRate.ToString("g")));
 
