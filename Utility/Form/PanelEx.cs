@@ -11,24 +11,43 @@ namespace Utility.Form
     [ToolboxBitmap(typeof(Panel))]
     public class PanelEx : Panel
     {
-        private Color borderColor;
+        #region Fields
         private Border3DStyle border3DStyle;
-        private ToolStripStatusLabelBorderSides borderSide;
+        private Color borderColor;
         private bool borderIsSingleMode;
+        private ToolStripStatusLabelBorderSides borderSide;
         private int cornerRadius;
+        #endregion
 
+        #region Constructors
         /// <summary>
-        /// 指定边框是否为单色模式
+        /// 构造函数
         /// </summary>
-        [Category("外观Ex"), DefaultValue(true), Description("指定边框是否为单色模式。false代表三维模式")]
-        public bool BorderIsSingleMode
+        public PanelEx()
         {
-            get { return borderIsSingleMode; }
+            this.borderIsSingleMode = true;
+            this.borderColor = Color.Black;
+            this.border3DStyle = Border3DStyle.Etched;
+            this.borderSide = ToolStripStatusLabelBorderSides.None;
+            this.cornerRadius = 5;
+        }
+        #endregion
+
+        #region Properties
+        /// <summary>
+        /// 边框三维样式
+        /// </summary>
+        [Category("外观Ex"), DefaultValue(Border3DStyle.Etched), Description("边框三维样式。仅当边框为三维模式时有效")]
+        public Border3DStyle Border3DStyle
+        {
+            get { return this.border3DStyle; }
             set
             {
-                if (borderIsSingleMode == value) { return; }
-                borderIsSingleMode = value;
-                this.Invalidate();
+                if (this.border3DStyle == value)
+                    return;
+
+                this.border3DStyle = value;
+                Invalidate();
             }
         }
 
@@ -38,27 +57,31 @@ namespace Utility.Form
         [Category("外观Ex"), DefaultValue(typeof(Color), "Black"), Description("边框颜色。仅当边框为单色模式时有效")]
         public Color BorderColor
         {
-            get { return borderColor; }
+            get { return this.borderColor; }
             set
             {
-                if (borderColor == value) { return; }
-                borderColor = value;
-                this.Invalidate();
+                if (this.borderColor == value)
+                    return;
+
+                this.borderColor = value;
+                Invalidate();
             }
         }
 
         /// <summary>
-        /// 边框三维样式
+        /// 指定边框是否为单色模式
         /// </summary>
-        [Category("外观Ex"), DefaultValue(Border3DStyle.Etched), Description("边框三维样式。仅当边框为三维模式时有效")]
-        public Border3DStyle Border3DStyle
+        [Category("外观Ex"), DefaultValue(true), Description("指定边框是否为单色模式。false代表三维模式")]
+        public bool BorderIsSingleMode
         {
-            get { return border3DStyle; }
+            get { return this.borderIsSingleMode; }
             set
             {
-                if (border3DStyle == value) { return; }
-                border3DStyle = value;
-                this.Invalidate();
+                if (this.borderIsSingleMode == value)
+                    return;
+
+                this.borderIsSingleMode = value;
+                Invalidate();
             }
         }
 
@@ -69,12 +92,14 @@ namespace Utility.Form
         [Category("外观Ex"), DefaultValue(ToolStripStatusLabelBorderSides.None), Description("边框位置。可自由启用各个方位的边框")]
         public ToolStripStatusLabelBorderSides BorderSide
         {
-            get { return borderSide; }
+            get { return this.borderSide; }
             set
             {
-                if (borderSide == value) { return; }
-                borderSide = value;
-                this.Invalidate();
+                if (this.borderSide == value)
+                    return;
+
+                this.borderSide = value;
+                Invalidate();
             }
         }
 
@@ -84,92 +109,68 @@ namespace Utility.Form
         [Category("外观Ex"), DefaultValue(5), Description("圆角半径。仅当边框全部绘制时有效")]
         public int CornerRadius
         {
-            get { return cornerRadius; }
+            get { return this.cornerRadius; }
             set
             {
-                if (cornerRadius == value) { return; }
-                cornerRadius = value;
-                this.Invalidate();
+                if (this.cornerRadius == value)
+                    return;
+
+                this.cornerRadius = value;
+                Invalidate();
             }
         }
+        #endregion
 
-        /// <summary>
-        /// 构造函数
-        /// </summary>
-        public PanelEx()
-            : base()
-        {
-            this.borderIsSingleMode = true;
-            this.borderColor = Color.Black;
-            this.border3DStyle = Border3DStyle.Etched;
-            this.borderSide = ToolStripStatusLabelBorderSides.None;
-            this.cornerRadius = 5;
-        }
-
-        /// <summary>
-        /// Paint事件
-        /// </summary>
-        /// <param name="e"></param>
+        #region Methods
+        /// <inheritdoc />
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            if (this.BorderStyle != BorderStyle.None
-                || BorderSide == ToolStripStatusLabelBorderSides.None)
-            { return; }
+            if (this.BorderStyle != BorderStyle.None || this.BorderSide == ToolStripStatusLabelBorderSides.None)
+                return;
 
             using (Graphics g = e.Graphics)
             {
                 //单色模式
                 if (this.BorderIsSingleMode)
-                {
-                    using (Pen pen = new Pen(BorderColor))
+                    using (var pen = new Pen(this.BorderColor))
                     {
                         //若是四条边都启用，则直接画矩形
-                        if (BorderSide == ToolStripStatusLabelBorderSides.All)
+                        if (this.BorderSide == ToolStripStatusLabelBorderSides.All)
                         {
-                            int radius_max = Math.Min(this.Width / 2, this.Height / 2);
-                            int radius = Math.Min(radius_max, cornerRadius);
-                            if (radius > 0)
-                            {
-                                g.DrawArc(pen, 0, 0, 2 * radius, 2 * radius, 180, 90);
-                                g.DrawLine(pen, radius, 0, this.Width - radius - 1, 0);
-                                g.DrawArc(pen, this.Width - 2 * radius - 1, 0, 2 * radius, 2 * radius, -90, 90);
-                                g.DrawLine(pen, this.Width - 1, radius, this.Width - 1, this.Height - radius - 1);
-                                g.DrawArc(pen, this.Width - 2 * radius - 1, this.Height - 2 * radius - 1, 2 * radius, 2 * radius, 0, 90);
-                                g.DrawLine(pen, radius, this.Height - 1, this.Width - radius - 1, this.Height - 1);
-                                g.DrawArc(pen, 0, this.Height - 2 * radius - 1, 2 * radius, 2 * radius, 90, 90);
-                                g.DrawLine(pen, 0, radius, 0, this.Height - radius - 1);
-                            }
+                            int radiusMax = Math.Min(this.Width / 2, this.Height / 2);
+                            int radius = Math.Min(radiusMax, this.cornerRadius);
+                            if (radius <= 0)
+                                return;
+
+                            g.DrawArc(pen, 0, 0, 2 * radius, 2 * radius, 180, 90);
+                            g.DrawLine(pen, radius, 0, this.Width - radius - 1, 0);
+                            g.DrawArc(pen, this.Width - 2 * radius - 1, 0, 2 * radius, 2 * radius, -90, 90);
+                            g.DrawLine(pen, this.Width - 1, radius, this.Width - 1, this.Height - radius - 1);
+                            g.DrawArc(pen, this.Width - 2 * radius - 1, this.Height - 2 * radius - 1, 2 * radius, 2 * radius, 0, 90);
+                            g.DrawLine(pen, radius, this.Height - 1, this.Width - radius - 1, this.Height - 1);
+                            g.DrawArc(pen, 0, this.Height - 2 * radius - 1, 2 * radius, 2 * radius, 90, 90);
+                            g.DrawLine(pen, 0, radius, 0, this.Height - radius - 1);
                         }
                         else //否则分别绘制线条
                         {
-                            if ((BorderSide & ToolStripStatusLabelBorderSides.Top) == ToolStripStatusLabelBorderSides.Top)
-                            {
+                            if ((this.BorderSide & ToolStripStatusLabelBorderSides.Top) == ToolStripStatusLabelBorderSides.Top)
                                 g.DrawLine(pen, 0, 0, this.Width - 1, 0);
-                            }
 
-                            if ((BorderSide & ToolStripStatusLabelBorderSides.Right) == ToolStripStatusLabelBorderSides.Right)
-                            {
+                            if ((this.BorderSide & ToolStripStatusLabelBorderSides.Right) == ToolStripStatusLabelBorderSides.Right)
                                 g.DrawLine(pen, this.Width - 1, 0, this.Width - 1, this.Height - 1);
-                            }
 
-                            if ((BorderSide & ToolStripStatusLabelBorderSides.Bottom) == ToolStripStatusLabelBorderSides.Bottom)
-                            {
+                            if ((this.BorderSide & ToolStripStatusLabelBorderSides.Bottom) == ToolStripStatusLabelBorderSides.Bottom)
                                 g.DrawLine(pen, 0, this.Height - 1, this.Width - 1, this.Height - 1);
-                            }
 
-                            if ((BorderSide & ToolStripStatusLabelBorderSides.Left) == ToolStripStatusLabelBorderSides.Left)
-                            {
+                            if ((this.BorderSide & ToolStripStatusLabelBorderSides.Left) == ToolStripStatusLabelBorderSides.Left)
                                 g.DrawLine(pen, 0, 0, 0, this.Height - 1);
-                            }
                         }
                     }
-                }
                 else //三维模式
-                {
-                    ControlPaint.DrawBorder3D(g, this.ClientRectangle, this.Border3DStyle, (Border3DSide)BorderSide); //这儿要将ToolStripStatusLabelBorderSides转换为Border3DSide
-                }
+                    ControlPaint.DrawBorder3D(g, this.ClientRectangle, this.Border3DStyle, (Border3DSide)this.BorderSide);
             }
         }
+        #endregion
     }
 }

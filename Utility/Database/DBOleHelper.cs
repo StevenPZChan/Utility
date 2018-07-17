@@ -8,171 +8,116 @@ namespace Utility.Database
     /// <summary>
     /// OleDb数据库辅助类
     /// </summary>
-    public class DBOleHelper
+    public class DbOleHelper
     {
+        #region Methods
         /// <summary>
-        /// 执行SQL语句
+        /// 更新数据库
         /// </summary>
-        /// <param name="sSQL">SQL语句</param>
+        /// <param name="dt">待同步数据表</param>
+        /// <param name="sSql">查询语句</param>
         /// <param name="sErr">错误信息</param>
-        /// <returns>查询得到的第一行第一列</returns>
-        public static object ExecSQLScalar(string sSQL, ref string sErr)
-        {
-            return ExecSQLScalar(DBConn.GetOleConn(), sSQL, ref sErr);
-        }
+        /// <returns>是否成功更新</returns>
+        public static bool AdapterSaveData(DataTable dt, string sSql, ref string sErr) => AdapterSaveData(DbConn.GetOleConn(), dt, sSql, ref sErr);
 
         /// <summary>
-        /// 执行SQL语句
+        /// 更新数据库
         /// </summary>
         /// <param name="oConn">OleDb连接</param>
-        /// <param name="sSQL">SQL语句</param>
+        /// <param name="dt">待同步数据表</param>
+        /// <param name="sSql">查询语句</param>
         /// <param name="sErr">错误信息</param>
-        /// <returns>查询得到的第一行第一列</returns>
-        public static object ExecSQLScalar(OleDbConnection oConn, string sSQL, ref string sErr)
+        /// <returns>是否成功更新</returns>
+        public static bool AdapterSaveData(OleDbConnection oConn, DataTable dt, string sSql, ref string sErr)
         {
-            object result = null;
-            OleDbCommand cmd = new OleDbCommand(sSQL, oConn);
             try
             {
-                if (oConn.State != ConnectionState.Open) { cmd.Connection.Open(); }
-                result = cmd.ExecuteScalar();
-                cmd.Connection.Close();
+                OleDbDataAdapter oda = GetAdapter(oConn, sSql);
+                var _ = new OleDbCommandBuilder(oda)
+                    {QuotePrefix = "[", QuoteSuffix = "]", ConflictOption = ConflictOption.OverwriteChanges, SetAllValues = false};
+                oda.Update(dt);
+                return true;
             }
             catch (Exception ex)
             {
-                cmd.Connection.Close();
                 sErr = ex.Message;
+                return false;
             }
-            return result;
+            finally
+            {
+                oConn.Close();
+            }
         }
 
         /// <summary>
-        /// 执行SQL语句
+        /// 更新大量数据
         /// </summary>
-        /// <param name="sSQL">SQL语句</param>
+        /// <param name="dicDt">数据表字典</param>
         /// <param name="sErr">错误信息</param>
-        public static void ExecSQL(string sSQL, ref string sErr)
-        {
-            ExecSQL(DBConn.GetOleConn(), sSQL, ref sErr);
-        }
+        /// <returns>是否成功更新</returns>
+        public static bool AdapterSaveMastData(Dictionary<string, DataTable> dicDt, ref string sErr) =>
+            AdapterSaveMastData(DbConn.GetOleConn(), dicDt, ref sErr);
 
         /// <summary>
-        /// 执行SQL语句
+        /// 更新大量数据
         /// </summary>
         /// <param name="oConn">OleDb连接</param>
-        /// <param name="sSQL">SQL语句</param>
+        /// <param name="dicDt">数据表字典</param>
         /// <param name="sErr">错误信息</param>
-        public static void ExecSQL(OleDbConnection oConn, string sSQL, ref string sErr)
+        /// <returns>是否成功更新</returns>
+        public static bool AdapterSaveMastData(OleDbConnection oConn, Dictionary<string, DataTable> dicDt, ref string sErr)
         {
-            OleDbCommand cmd = new OleDbCommand(sSQL, oConn);
+            bool result;
+            var dt = new DataTable();
+            dt.Columns.Add(new DataColumn("ColSda", typeof(OleDbDataAdapter)));
+            dt.Columns.Add(new DataColumn("ColScb", typeof(OleDbCommandBuilder)));
+            dt.Columns.Add(new DataColumn("ColSQL", typeof(string)));
+            dt.Columns.Add(new DataColumn("ColDt", typeof(DataTable)));
+            foreach (KeyValuePair<string, DataTable> dic in dicDt)
+            {
+                var oda = new OleDbDataAdapter(dic.Key, oConn) {MissingSchemaAction = MissingSchemaAction.AddWithKey};
+                var ocb = new OleDbCommandBuilder(oda) {ConflictOption = ConflictOption.OverwriteChanges, SetAllValues = false};
+                DataRow dr = dt.NewRow();
+                dr["ColSda"] = oda;
+                dr["ColScb"] = ocb;
+                dr["ColSQL"] = dic.Key;
+                dr["ColDt"] = dic.Value;
+                dt.Rows.Add(dr);
+            }
+
+            if (oConn.State == ConnectionState.Closed)
+                oConn.Open();
+            OleDbTransaction trans = oConn.BeginTransaction();
             try
             {
-                if (oConn.State != ConnectionState.Open) { cmd.Connection.Open(); }
-                cmd.ExecuteNonQuery();
-                cmd.Connection.Close();
-            }
-            catch (Exception ex)
-            {
-                cmd.Connection.Close();
-                sErr = ex.Message;
-            }
-        }
-
-        /// <summary>
-        /// 执行SQL语句
-        /// </summary>
-        /// <param name="aPara">OleDb数据库参数</param>
-        /// <param name="sSQL">SQL语句</param>
-        /// <param name="sErr">错误信息</param>
-        public static void ExecSQL(OleDbParameter[] aPara, string sSQL, ref string sErr)
-        {
-            ExecSQL(DBConn.GetOleConn(), aPara, sSQL, ref sErr);
-        }
-
-        /// <summary>
-        /// 执行SQL语句
-        /// </summary>
-        /// <param name="oConn">SQL连接</param>
-        /// <param name="aPara">SQL数据库参数</param>
-        /// <param name="sSQL">SQL语句</param>
-        /// <param name="sErr">错误信息</param>
-        public static void ExecSQL(OleDbConnection oConn, OleDbParameter[] aPara, string sSQL, ref string sErr)
-        {
-            OleDbCommand cmd = new OleDbCommand(sSQL, oConn);
-            try
-            {
-                cmd.Parameters.AddRange(aPara);
-                if (oConn.State != ConnectionState.Open) { cmd.Connection.Open(); }
-                cmd.ExecuteNonQuery();
-                cmd.Connection.Close();
-            }
-            catch (Exception ex)
-            {
-                cmd.Connection.Close();
-                sErr = ex.Message;
-            }
-        }
-
-        /// <summary>
-        /// 查询得到数据表
-        /// </summary>
-        /// <param name="sSQL">查询语句</param>
-        /// <param name="sErr">错误信息</param>
-        /// <returns>数据表</returns>
-        public static DataTable GetDataTable(string sSQL, ref string sErr)
-        {
-            return GetDataTable(DBConn.GetOleConn(), sSQL, ref sErr);
-        }
-
-        /// <summary>
-        /// 查询得到数据表
-        /// </summary>
-        /// <param name="oConn">OleDb连接</param>
-        /// <param name="sSQL">查询语句</param>
-        /// <param name="sErr">错误信息</param>
-        /// <returns>数据表</returns>
-        public static DataTable GetDataTable(OleDbConnection oConn, string sSQL, ref string sErr)
-        {
-            DataTable dt = new DataTable();
-            OleDbDataAdapter oda = GetAdapter(oConn, sSQL);
-            try
-            {
-                oda.Fill(dt);
-                foreach (DataColumn col in dt.Columns)
+                foreach (DataRow dr in dt.Rows)
                 {
-                    col.ReadOnly = false;
+                    var oda = dr["ColSda"] as OleDbDataAdapter;
+
+                    if (oda == null)
+                        continue;
+
+                    oda.SelectCommand.Transaction = trans;
+                    var upData = dr["ColDt"] as DataTable;
+                    if (upData != null)
+                        oda.Update(upData);
                 }
+
+                trans.Commit();
+                result = true;
             }
             catch (Exception ex)
             {
+                trans.Rollback();
                 sErr = ex.Message;
+                result = false;
             }
-            return dt;
-        }
+            finally
+            {
+                oConn.Close();
+            }
 
-
-        /// <summary>
-        /// 得到连接适配器
-        /// </summary>
-        /// <param name="sSQL">查询语句</param>
-        /// <returns>OleDb适配器</returns>
-        public static OleDbDataAdapter GetAdapter(string sSQL)
-        {
-            return GetAdapter(DBConn.GetOleConn(), sSQL);
-        }
-
-        /// <summary>
-        /// 得到连接适配器
-        /// </summary>
-        /// <param name="oConn">OleDb连接</param>
-        /// <param name="sSQL">查询语句</param>
-        /// <returns>OleDb适配器</returns>
-        public static OleDbDataAdapter GetAdapter(OleDbConnection oConn, string sSQL)
-        {
-            OleDbDataAdapter oda = new OleDbDataAdapter(sSQL, oConn);
-            oda.MissingSchemaAction = MissingSchemaAction.AddWithKey;
-            oda.ContinueUpdateOnError = true;
-            return oda;
+            return result;
         }
 
         /// <summary>
@@ -181,10 +126,8 @@ namespace Utility.Database
         /// <param name="sProcName">操作字符串</param>
         /// <param name="arrPara">OleDb数据库参数</param>
         /// <param name="sErr">错误信息</param>
-        public static void ExecProcedre(string sProcName, OleDbParameter[] arrPara, ref string sErr)
-        {
-            ExecProcedre(DBConn.GetOleConn(), sProcName, arrPara, ref sErr);
-        }
+        public static void ExecProcedre(string sProcName, OleDbParameter[] arrPara, ref string sErr) =>
+            ExecProcedre(DbConn.GetOleConn(), sProcName, arrPara, ref sErr);
 
         /// <summary>
         /// 执行操作
@@ -197,129 +140,182 @@ namespace Utility.Database
         {
             try
             {
-                OleDbCommand comm = new OleDbCommand(sProcName, oConn);
-                comm.CommandType = CommandType.StoredProcedure;
+                var comm = new OleDbCommand(sProcName, oConn) {CommandType = CommandType.StoredProcedure};
                 if (arrPara != null)
-                {
                     comm.Parameters.AddRange(arrPara);
-                }
                 if (oConn.State != ConnectionState.Open)
-                { oConn.Open(); }
+                    oConn.Open();
                 comm.ExecuteNonQuery();
-                oConn.Close();
             }
             catch (Exception ex)
             {
-                oConn.Close();
                 sErr = ex.Message;
             }
-        }
-
-        /// <summary>
-        /// 更新数据库
-        /// </summary>
-        /// <param name="dt">待同步数据表</param>
-        /// <param name="sSQL">查询语句</param>
-        /// <param name="sErr">错误信息</param>
-        /// <returns>是否成功更新</returns>
-        public static bool AdapterSaveData(DataTable dt, string sSQL, ref string sErr)
-        {
-            return AdapterSaveData(DBConn.GetOleConn(), dt, sSQL, ref sErr);
-        }
-
-        /// <summary>
-        /// 更新数据库
-        /// </summary>
-        /// <param name="oConn">OleDb连接</param>
-        /// <param name="dt">待同步数据表</param>
-        /// <param name="sSQL">查询语句</param>
-        /// <param name="sErr">错误信息</param>
-        /// <returns>是否成功更新</returns>
-        public static bool AdapterSaveData(OleDbConnection oConn, DataTable dt, string sSQL, ref string sErr)
-        {
-            try
+            finally
             {
-                OleDbDataAdapter oda = GetAdapter(oConn, sSQL);
-                OleDbCommandBuilder scb = new OleDbCommandBuilder(oda);
-                scb.QuotePrefix = "[";
-                scb.QuoteSuffix = "]";
-                scb.ConflictOption = ConflictOption.OverwriteChanges;
-                scb.SetAllValues = false;
-                oda.Update(dt);
-                return true;
-            }
-            catch (Exception e)
-            {
-                sErr = e.Message;
-                return false;
+                oConn.Close();
             }
         }
 
         /// <summary>
-        /// 更新大量数据
+        /// 执行SQL语句
         /// </summary>
-        /// <param name="dicDT">数据表字典</param>
+        /// <param name="sSql">SQL语句</param>
         /// <param name="sErr">错误信息</param>
-        /// <returns>是否成功更新</returns>
-        public static bool AdapterSaveMastData(Dictionary<string, DataTable> dicDT, ref string sErr)
-        {
-            return AdapterSaveMastData(DBConn.GetOleConn(), dicDT, ref sErr);
-        }
+        public static void ExecSql(string sSql, ref string sErr) => ExecSql(DbConn.GetOleConn(), sSql, ref sErr);
 
         /// <summary>
-        /// 更新大量数据
+        /// 执行SQL语句
         /// </summary>
         /// <param name="oConn">OleDb连接</param>
-        /// <param name="dicDT">数据表字典</param>
+        /// <param name="sSql">SQL语句</param>
         /// <param name="sErr">错误信息</param>
-        /// <returns>是否成功更新</returns>
-        public static bool AdapterSaveMastData(OleDbConnection oConn, Dictionary<string, DataTable> dicDT, ref string sErr)
+        public static void ExecSql(OleDbConnection oConn, string sSql, ref string sErr)
         {
-            bool result = false;
-            DataTable dt = new DataTable();
-            dt.Columns.Add(new DataColumn("ColSda", typeof(OleDbDataAdapter)));
-            dt.Columns.Add(new DataColumn("ColScb", typeof(OleDbCommandBuilder)));
-            dt.Columns.Add(new DataColumn("ColSQL", typeof(System.String)));
-            dt.Columns.Add(new DataColumn("ColDt", typeof(DataTable)));
-            foreach (KeyValuePair<string, DataTable> dic in dicDT)
-            {
-                OleDbDataAdapter oda = new OleDbDataAdapter(dic.Key, oConn);
-                oda.MissingSchemaAction = MissingSchemaAction.AddWithKey;
-                OleDbCommandBuilder ocb = new OleDbCommandBuilder(oda);
-                ocb.ConflictOption = ConflictOption.OverwriteChanges;
-                ocb.SetAllValues = false;
-                DataRow dr = dt.NewRow();
-                dr["ColSda"] = oda;
-                dr["ColScb"] = ocb;
-                dr["ColSQL"] = dic.Key;
-                dr["ColDt"] = dic.Value;
-                dt.Rows.Add(dr);
-            }
-            if (oConn.State == ConnectionState.Closed)
-            {
-                oConn.Open();
-            }
-            OleDbTransaction trans = oConn.BeginTransaction();
+            var cmd = new OleDbCommand(sSql, oConn);
             try
             {
-                foreach (DataRow dr in dt.Rows)
-                {
-                    OleDbDataAdapter oda = dr["ColSda"] as OleDbDataAdapter;
-                    oda.SelectCommand.Transaction = trans;
-                    DataTable upData = dr["ColDt"] as DataTable;
-                    oda.Update(upData);
-                }
-                trans.Commit();
-                result = true;
+                if (oConn.State != ConnectionState.Open)
+                    cmd.Connection.Open();
+                cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
-                trans.Rollback();
-                oConn.Close();
                 sErr = ex.Message;
-                result = false;
             }
+            finally
+            {
+                cmd.Connection.Close();
+            }
+        }
+
+        /// <summary>
+        /// 执行SQL语句
+        /// </summary>
+        /// <param name="aPara">OleDb数据库参数</param>
+        /// <param name="sSql">SQL语句</param>
+        /// <param name="sErr">错误信息</param>
+        public static void ExecSql(OleDbParameter[] aPara, string sSql, ref string sErr) => ExecSql(DbConn.GetOleConn(), aPara, sSql, ref sErr);
+
+        /// <summary>
+        /// 执行SQL语句
+        /// </summary>
+        /// <param name="oConn">SQL连接</param>
+        /// <param name="aPara">SQL数据库参数</param>
+        /// <param name="sSql">SQL语句</param>
+        /// <param name="sErr">错误信息</param>
+        public static void ExecSql(OleDbConnection oConn, OleDbParameter[] aPara, string sSql, ref string sErr)
+        {
+            var cmd = new OleDbCommand(sSql, oConn);
+            try
+            {
+                cmd.Parameters.AddRange(aPara);
+                if (oConn.State != ConnectionState.Open)
+                    cmd.Connection.Open();
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                sErr = ex.Message;
+            }
+            finally
+            {
+                cmd.Connection.Close();
+            }
+        }
+
+        /// <summary>
+        /// 执行SQL语句
+        /// </summary>
+        /// <param name="sSql">SQL语句</param>
+        /// <param name="sErr">错误信息</param>
+        /// <returns>查询得到的第一行第一列</returns>
+        public static object ExecSqlScalar(string sSql, ref string sErr) => ExecSqlScalar(DbConn.GetOleConn(), sSql, ref sErr);
+
+        /// <summary>
+        /// 执行SQL语句
+        /// </summary>
+        /// <param name="oConn">OleDb连接</param>
+        /// <param name="sSql">SQL语句</param>
+        /// <param name="sErr">错误信息</param>
+        /// <returns>查询得到的第一行第一列</returns>
+        public static object ExecSqlScalar(OleDbConnection oConn, string sSql, ref string sErr)
+        {
+            object result = null;
+            var cmd = new OleDbCommand(sSql, oConn);
+            try
+            {
+                if (oConn.State != ConnectionState.Open)
+                    cmd.Connection.Open();
+                result = cmd.ExecuteScalar();
+            }
+            catch (Exception ex)
+            {
+                sErr = ex.Message;
+            }
+            finally
+            {
+                cmd.Connection.Close();
+            }
+
             return result;
+        }
+
+        /// <summary>
+        /// 得到连接适配器
+        /// </summary>
+        /// <param name="sSql">查询语句</param>
+        /// <returns>OleDb适配器</returns>
+        public static OleDbDataAdapter GetAdapter(string sSql) => GetAdapter(DbConn.GetOleConn(), sSql);
+
+        /// <summary>
+        /// 得到连接适配器
+        /// </summary>
+        /// <param name="oConn">OleDb连接</param>
+        /// <param name="sSql">查询语句</param>
+        /// <returns>OleDb适配器</returns>
+        public static OleDbDataAdapter GetAdapter(OleDbConnection oConn, string sSql)
+        {
+            var oda = new OleDbDataAdapter(sSql, oConn) {MissingSchemaAction = MissingSchemaAction.AddWithKey, ContinueUpdateOnError = true};
+
+            return oda;
+        }
+
+        /// <summary>
+        /// 查询得到数据表
+        /// </summary>
+        /// <param name="sSql">查询语句</param>
+        /// <param name="sErr">错误信息</param>
+        /// <returns>数据表</returns>
+        public static DataTable GetDataTable(string sSql, ref string sErr) => GetDataTable(DbConn.GetOleConn(), sSql, ref sErr);
+
+        /// <summary>
+        /// 查询得到数据表
+        /// </summary>
+        /// <param name="oConn">OleDb连接</param>
+        /// <param name="sSql">查询语句</param>
+        /// <param name="sErr">错误信息</param>
+        /// <returns>数据表</returns>
+        public static DataTable GetDataTable(OleDbConnection oConn, string sSql, ref string sErr)
+        {
+            var dt = new DataTable();
+            OleDbDataAdapter oda = GetAdapter(oConn, sSql);
+            try
+            {
+                oda.Fill(dt);
+                foreach (DataColumn col in dt.Columns)
+                    col.ReadOnly = false;
+            }
+            catch (Exception ex)
+            {
+                sErr = ex.Message;
+            }
+            finally
+            {
+                oConn.Close();
+            }
+
+            return dt;
         }
 
         /// <summary>
@@ -330,22 +326,23 @@ namespace Utility.Database
         /// <returns></returns>
         public static bool IfSheetExist(OleDbConnection oConn, string sheetName)
         {
-            // 获得excel文件的各个表单(sheet)的名字  
-            DataTable xlsTable = oConn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables,
-                new object[] { null, null, null, "TABLE" });
+            // 获得excel文件的各个表单(sheet)的名字
+            DataTable xlsTable = oConn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] {null, null, null, "TABLE"});
 
-            bool sheetExist = false;
+            var sheetExist = false;
+
+            if (xlsTable?.Rows == null)
+                return false;
+
             foreach (DataRow sheetRow in xlsTable.Rows)
-            {
                 if (sheetRow["TABLE_NAME"].ToString() == sheetName)
                 {
                     sheetExist = true;
-
                     break;
                 }
-            }
 
             return sheetExist;
         }
+        #endregion
     }
 }

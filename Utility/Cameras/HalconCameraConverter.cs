@@ -1,7 +1,19 @@
 ﻿#define BASLER
 #define TIS
+
 using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Threading.Tasks;
+
 using HalconDotNet;
+#if BASLER
+using Basler.Pylon;
+#endif
+#if TIS
+using TIS.Imaging;
+
+#endif
 
 namespace Utility.Cameras
 {
@@ -10,106 +22,131 @@ namespace Utility.Cameras
     /// </summary>
     public static class HalconCameraConverter
     {
+        #region Fields
+        private static readonly Action<object, HImage, string> OnImageReceived = RaisedImageReceived;
+        #endregion
+
+        #region Events
         /// <summary>
         /// 图像处理函数触发的事件
         /// </summary>
         public static event EventHandler<ImageDataEventArgs> ImageReceived;
-        private static Action<object, HImage, string> OnImageReceived = RaisedImageReceived;
-#if BASLER
+        #endregion
+
+        #region Methods
+#if TIS
         /// <summary>
-        /// Basler相机回调函数
-        /// 使用方法：
-        /// Camera camera = new Camera();
-        /// camera.CameraOpened += Configuration.AcquireContinuous;
-        /// camera.StreamGrabber.ImageGrabbed += HalconCameraConverter.OnImageGrabbed;
-        /// HalconCameraConverter.ImageReceived += YourImageProcessFunction;
-        /// camera.Open();
-        /// camera.StreamGrabber.UserData = deviceName;
+        /// The Imaging Source相机回调函数 使用方法： ICImagingControl icImagingControl = new
+        /// ICImagingControl(); icImagingControl.MemoryCurrentGrabberColorformat =
+        /// ICImagingControlColorformats.IC****; icImagingControl.LiveCaptureContinuous = true;
+        /// icImagingControl.ImageAvailable += HalconCameraConverter.ImageAvailable;
+        /// HalconCameraConverter.ImageReceived += YourImageProcessFunction; icImagingControl.Tag = deviceName;
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public static void OnImageGrabbed(object sender, Basler.Pylon.ImageGrabbedEventArgs e)
+        public static void ImageAvailable(object sender, ICImagingControl.ImageAvailableEventArgs e)
         {
-            Basler.Pylon.IGrabResult grabResult = e.GrabResult;
+            ICImagingControlColorformats colorformat = ((ICImagingControl)sender).MemoryCurrentGrabberColorformat;
+            var ho_Image = new HImage();
+            switch (colorformat)
+            {
+                case ICImagingControlColorformats.ICY800:
+                    ho_Image = new HImage("byte", e.ImageBuffer.Size.Width, e.ImageBuffer.Size.Height, e.ImageBuffer.GetImageDataPtr());
+                    break;
+
+                case ICImagingControlColorformats.ICY8:
+                    var ho_ImageIn = new HImage("byte", e.ImageBuffer.Size.Width, e.ImageBuffer.Size.Height, e.ImageBuffer.GetImageDataPtr());
+                    ho_Image = ho_ImageIn.MirrorImage("row");
+                    ho_ImageIn.Dispose();
+                    break;
+
+                case ICImagingControlColorformats.ICRGB24:
+                    ho_Image.GenImageInterleaved(e.ImageBuffer.GetImageDataPtr(), "bgr", e.ImageBuffer.Size.Width, e.ImageBuffer.Size.Height, -1, "byte",
+                        e.ImageBuffer.Size.Width, e.ImageBuffer.Size.Height, 0, 0, -1, 0);
+                    break;
+
+                case ICImagingControlColorformats.IncompatibleColorformat: break;
+                case ICImagingControlColorformats.ICRGB32:                 break;
+                case ICImagingControlColorformats.ICRGB565:                break;
+                case ICImagingControlColorformats.ICRGB555:                break;
+                case ICImagingControlColorformats.ICUYVY:                  break;
+                case ICImagingControlColorformats.ICYGB1:                  break;
+                case ICImagingControlColorformats.ICYGB0:                  break;
+                case ICImagingControlColorformats.ICBY8:                   break;
+                case ICImagingControlColorformats.ICY16:                   break;
+                case ICImagingControlColorformats.ICRGB64:                 break;
+                default:
+                    ho_Image.GenEmptyObj();
+                    break;
+            }
+
+            OnImageReceived.BeginInvoke(sender, ho_Image, ((ICImagingControl)sender).Tag.ToString(), EndingImageReceived, ho_Image);
+        }
+#endif
+#if BASLER
+        /// <summary>
+        /// Basler相机回调函数 使用方法： Camera camera = new Camera(); camera.CameraOpened +=
+        /// Configuration.AcquireContinuous; camera.StreamGrabber.ImageGrabbed +=
+        /// HalconCameraConverter.OnImageGrabbed; HalconCameraConverter.ImageReceived +=
+        /// YourImageProcessFunction; camera.Open(); camera.StreamGrabber.UserData = deviceName;
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public static void OnImageGrabbed(object sender, ImageGrabbedEventArgs e)
+        {
+            IGrabResult grabResult = e.GrabResult;
+            if (!grabResult.GrabSucceeded)
+            {
+                Task.Run(() => { throw new InvalidOperationException($"Balser camera error {grabResult.ErrorCode}: {grabResult.ErrorDescription}"); });
+                return;
+            }
+
             HImage ho_Image;
-            using (System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(grabResult.Width, grabResult.Height,
-                System.Drawing.Imaging.PixelFormat.Format32bppRgb))
+            using (var bitmap = new Bitmap(grabResult.Width, grabResult.Height, PixelFormat.Format32bppRgb))
             {
                 // Lock the bits of the bitmap.
-                System.Drawing.Imaging.BitmapData bmpData = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
-                    System.Drawing.Imaging.ImageLockMode.ReadWrite, bitmap.PixelFormat);
+                BitmapData bmpData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, bitmap.PixelFormat);
                 // Place the pointer to the buffer of the bitmap.
-                Basler.Pylon.PixelDataConverter converter = new Basler.Pylon.PixelDataConverter();
-                converter.OutputPixelFormat = Basler.Pylon.PixelType.Mono8;
+                var converter = new PixelDataConverter {OutputPixelFormat = PixelType.Mono8};
                 IntPtr ptrBmp = bmpData.Scan0;
                 converter.Convert(ptrBmp, bmpData.Stride * bitmap.Height, grabResult); //Exception handling TODO
                 bitmap.UnlockBits(bmpData);
                 ho_Image = new HImage("byte", grabResult.Width, grabResult.Height, ptrBmp);
             }
+
             OnImageReceived.BeginInvoke(sender, ho_Image, grabResult.StreamGrabberUserData.ToString(), EndingImageReceived, ho_Image);
         }
 #endif
-
-#if TIS
-        /// <summary>
-        /// The Imaging Source相机回调函数
-        /// 使用方法：
-        /// ICImagingControl icImagingControl = new ICImagingControl();
-        /// icImagingControl.MemoryCurrentGrabberColorformat = ICImagingControlColorformats.IC****;
-        /// icImagingControl.LiveCaptureContinuous = true;
-        /// icImagingControl.ImageAvailable += HalconCameraConverter.ImageAvailable;
-        /// HalconCameraConverter.ImageReceived += YourImageProcessFunction;
-        /// icImagingControl.Tag = deviceName;
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public static void ImageAvailable(object sender, TIS.Imaging.ICImagingControl.ImageAvailableEventArgs e)
-        {
-            TIS.Imaging.ICImagingControlColorformats colorformat = ((TIS.Imaging.ICImagingControl)sender).MemoryCurrentGrabberColorformat;
-            HImage ho_Image = new HImage();
-            if (colorformat == TIS.Imaging.ICImagingControlColorformats.ICY800)
-                ho_Image = new HImage("byte", e.ImageBuffer.Size.Width, e.ImageBuffer.Size.Height, e.ImageBuffer.GetImageDataPtr());
-            else if (colorformat == TIS.Imaging.ICImagingControlColorformats.ICY8)
-            {
-                HImage ho_ImageIn = new HImage("byte", e.ImageBuffer.Size.Width, e.ImageBuffer.Size.Height, e.ImageBuffer.GetImageDataPtr());
-                ho_Image = ho_ImageIn.MirrorImage("row");
-                ho_ImageIn.Dispose();
-            }
-            else if (colorformat == TIS.Imaging.ICImagingControlColorformats.ICRGB24)
-                ho_Image.GenImageInterleaved(e.ImageBuffer.GetImageDataPtr(), "bgr", e.ImageBuffer.Size.Width, e.ImageBuffer.Size.Height, -1,
-                    "byte", e.ImageBuffer.Size.Width, e.ImageBuffer.Size.Height, 0, 0, -1, 0);
-            else
-                ho_Image.GenEmptyObj();
-            OnImageReceived.BeginInvoke(sender, ho_Image, ((TIS.Imaging.ICImagingControl)sender).Tag.ToString(), EndingImageReceived, ho_Image);
-        }
-#endif
-
-        private static void RaisedImageReceived(object sender, HImage image, string info)
-        {
-            ImageReceived?.Invoke(sender, new ImageDataEventArgs(image, info));
-        }
-
         private static void EndingImageReceived(IAsyncResult ar)
         {
-            HImage ho_Image = (HImage)ar.AsyncState;
+            var ho_Image = (HImage)ar.AsyncState;
             if (ho_Image.IsInitialized())
                 ho_Image.Dispose();
         }
+
+        private static void RaisedImageReceived(object sender, HImage image, string info) => ImageReceived?.Invoke(sender, new ImageDataEventArgs(image, info));
+        #endregion
     }
 
+    /// <inheritdoc />
     /// <summary>
     /// 包含HObject图像对象和相机信息的事件信息类
     /// </summary>
     public class ImageDataEventArgs : EventArgs
     {
-        /// <summary>
-        /// HObject图像对象
-        /// </summary>
-        public HImage Image;
+        #region Fields
         /// <summary>
         /// 相机信息
         /// </summary>
         public string DeviceInfo;
+        /// <summary>
+        /// HObject图像对象
+        /// </summary>
+        public HImage Image;
+        #endregion
+
+        #region Constructors
+        /// <inheritdoc />
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -117,8 +154,9 @@ namespace Utility.Cameras
         /// <param name="info">相机信息</param>
         public ImageDataEventArgs(HImage image, string info)
         {
-            Image = image;
-            DeviceInfo = info;
+            this.Image = image;
+            this.DeviceInfo = info;
         }
+        #endregion
     }
 }

@@ -70,7 +70,7 @@
             this.btnCalib = new System.Windows.Forms.Button();
             this.btnReadParam = new System.Windows.Forms.Button();
             this.btnSavePose = new System.Windows.Forms.Button();
-            this.hWindowControl1 = new HalconDotNet.HWindowControl();
+            this.HwControl = new HalconDotNet.HWindowControl();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.机器人坐标ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -93,7 +93,7 @@
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.dataGridView1, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.hWindowControl1, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.HwControl, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -575,15 +575,15 @@
             // 
             // hWindowControl1
             // 
-            this.hWindowControl1.BackColor = System.Drawing.Color.Black;
-            this.hWindowControl1.BorderColor = System.Drawing.Color.Black;
-            this.hWindowControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hWindowControl1.ImagePart = new System.Drawing.Rectangle(0, 0, 640, 480);
-            this.hWindowControl1.Location = new System.Drawing.Point(3, 3);
-            this.hWindowControl1.Name = "hWindowControl1";
-            this.hWindowControl1.Size = new System.Drawing.Size(506, 397);
-            this.hWindowControl1.TabIndex = 3;
-            this.hWindowControl1.WindowSize = new System.Drawing.Size(506, 397);
+            this.HwControl.BackColor = System.Drawing.Color.Black;
+            this.HwControl.BorderColor = System.Drawing.Color.Black;
+            this.HwControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.HwControl.ImagePart = new System.Drawing.Rectangle(0, 0, 640, 480);
+            this.HwControl.Location = new System.Drawing.Point(3, 3);
+            this.HwControl.Name = "HWControl";
+            this.HwControl.Size = new System.Drawing.Size(506, 397);
+            this.HwControl.TabIndex = 3;
+            this.HwControl.WindowSize = new System.Drawing.Size(506, 397);
             // 
             // 机器人坐标ToolStripMenuItem
             // 
@@ -643,7 +643,6 @@
         private System.Windows.Forms.Button btnSub;
         private System.Windows.Forms.Button btnReset;
         private System.Windows.Forms.Button btnCalib;
-        private HalconDotNet.HWindowControl hWindowControl1;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column2;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column3;

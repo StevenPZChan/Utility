@@ -12,29 +12,20 @@ namespace Utility.IOs
     /// </summary>
     public class TCPUtil
     {
-        /// <summary>
-        /// 监听到新连接时事件
-        /// </summary>
-        public event EventHandler<TcpClient> ConnectionAdded;
-        /// <summary>
-        /// 数据接收时事件
-        /// </summary>
-        public event EventHandler<string> DataReceived;
-        /// <summary>
-        /// 错误引发时事件
-        /// </summary>
-        public event EventHandler<string> Error;
-
-        private TcpClient client;
+        #region Fields
+        private readonly string address;
+        private readonly int port;
+        private readonly string type;
+        private TcpClient _client;
+        private NetworkStream _ns;
+        private bool closing;
+        private Thread datareceive;
         private TcpListener listener;
         private Thread listeningthread;
-        private Thread datareceive;
         private Socket socket;
-        private NetworkStream ns;
-        private string address;
-        private int port;
-        private string type;
-        private bool closing = false;
+        #endregion
+
+        #region Constructors
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -47,54 +38,50 @@ namespace Utility.IOs
             this.port = port;
             this.type = type;
         }
+        #endregion
 
+        #region Events
         /// <summary>
-        /// 初始化
+        /// 监听到新连接时事件
         /// </summary>
-        /// <returns>初始化是否成功</returns>
-        public bool Initialize()
+        public event EventHandler<TcpClient> ConnectionAdded;
+        /// <summary>
+        /// 数据接收时事件
+        /// </summary>
+        public event EventHandler<string> DataReceived;
+        /// <summary>
+        /// 错误引发时事件
+        /// </summary>
+        public event EventHandler<string> Error;
+        #endregion
+
+        #region Methods
+        /// <summary>
+        /// tcp连接关闭
+        /// </summary>
+        public void Close()
         {
-            IPAddress ip = Dns.GetHostAddresses(address)[0];
-            try
+            this.closing = true;
+            Thread.Sleep(3000);
+            this._ns?.Close();
+            this._client?.Close();
+            if (this.listener != null)
             {
-                switch (type)
-                {
-                    case "client":
-                        client = new TcpClient();
-                        client.Connect(ip, port);
-                        GetStream();
-                        datareceive = new Thread(new ThreadStart(DataReceive));
-                        datareceive.Start();
-                        break;
-                    case "server":
-                        listener = new TcpListener(ip, port);
-                        listener.Start();
-                        listeningthread = new Thread(new ThreadStart(NewConnectIn));
-                        listeningthread.Start();
-                        break;
-                    case "socket":
-                        socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                        socket.Connect(ip, port);
-                        datareceive = new Thread(new ThreadStart(DataReceive));
-                        datareceive.Start();
-                        break;
-                }
-                return true;
+                this.listener.Stop();
+                this.listener = null;
             }
-            catch (Exception ex)
-            {
-                Error(this, ex.Message);
-                return false;
-            }
+
+            if (this.socket == null)
+                return;
+
+            this.socket.Shutdown(SocketShutdown.Both);
+            this.socket.Close();
         }
 
         /// <summary>
         /// 获取client的networkstream
         /// </summary>
-        public void GetStream()
-        {
-            ns = GetStream(client);
-        }
+        public void GetStream() => this._ns = GetStream(this._client);
 
         /// <summary>
         /// 获取client的networkstream
@@ -112,31 +99,93 @@ namespace Utility.IOs
             }
             catch (Exception ex)
             {
-                Error(this, ex.Message);
+                Error?.Invoke(this, ex.Message);
                 return null;
             }
         }
 
         /// <summary>
-        /// tcp连接关闭
+        /// 初始化
         /// </summary>
-        public void Close()
+        /// <returns>初始化是否成功</returns>
+        public bool Initialize()
         {
-            closing = true;
-            Thread.Sleep(3000);
-            if (ns != null)
-                ns.Close();
-            if (client != null)
-                client.Close();
-            if (listener != null)
+            IPAddress ip = Dns.GetHostAddresses(this.address)[0];
+            try
             {
-                listener.Stop();
-                listener = null;
+                switch (this.type)
+                {
+                    case "client":
+                        this._client = new TcpClient();
+                        this._client.Connect(ip, this.port);
+                        GetStream();
+                        this.datareceive = new Thread(DataReceive);
+                        this.datareceive.Start();
+                        break;
+                    case "server":
+                        this.listener = new TcpListener(ip, this.port);
+                        this.listener.Start();
+                        this.listeningthread = new Thread(NewConnectIn);
+                        this.listeningthread.Start();
+                        break;
+                    case "socket":
+                        this.socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                        this.socket.Connect(ip, this.port);
+                        this.datareceive = new Thread(DataReceive);
+                        this.datareceive.Start();
+                        break;
+                }
+
+                return true;
             }
-            if (socket != null)
+            catch (Exception ex)
             {
-                socket.Shutdown(SocketShutdown.Both);
-                socket.Close();
+                Error?.Invoke(this, ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 读取数据
+        /// </summary>
+        /// <param name="ns">networkstream对象</param>
+        /// <returns>读取到的数据</returns>
+        public byte[] Read(NetworkStream ns)
+        {
+            var message = new byte[1024];
+            try
+            {
+                int received = ns.Read(message, 0, 1024);
+                return message.Take(received).ToArray();
+            }
+            catch (Exception ex)
+            {
+                Error?.Invoke(this, ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// socket读取数据
+        /// </summary>
+        /// <returns>读取到的数据</returns>
+        public byte[] Receive()
+        {
+            var message = new byte[1024];
+            try
+            {
+                if (this.type == "socket")
+                {
+                    int received = this.socket.Receive(message, 0, 1024, SocketFlags.None);
+                    return message.Take(received).ToArray();
+                }
+
+                return Read(this._ns);
+            }
+            catch (Exception ex)
+            {
+                Error?.Invoke(this, ex.Message);
+                return null;
             }
         }
 
@@ -149,17 +198,15 @@ namespace Utility.IOs
         {
             try
             {
-                if (type == "socket")
-                {
-                    socket.Send(message);
-                    return true;
-                }
-                else
-                    return Write(ns, message);
+                if (this.type != "socket")
+                    return Write(this._ns, message);
+
+                this.socket.Send(message);
+                return true;
             }
             catch (Exception ex)
             {
-                Error(this, ex.Message);
+                Error?.Invoke(this, ex.Message);
                 return false;
             }
         }
@@ -169,34 +216,7 @@ namespace Utility.IOs
         /// </summary>
         /// <param name="message">数据</param>
         /// <returns>是否发送成功</returns>
-        public bool Send(string message)
-        {
-            return Send(Encoding.ASCII.GetBytes(message));
-        }
-
-        /// <summary>
-        /// socket读取数据
-        /// </summary>
-        /// <returns>读取到的数据</returns>
-        public byte[] Receive()
-        {
-            byte[] message = new byte[1024];
-            try
-            {
-                if (type == "socket")
-                {
-                    int received = socket.Receive(message, 0, 1024, SocketFlags.None);
-                    return message.Take(received).ToArray();
-                }
-                else
-                    return Read(ns);
-            }
-            catch (Exception ex)
-            {
-                Error(this, ex.Message);
-                return null;
-            }
-        }
+        public bool Send(string message) => Send(Encoding.ASCII.GetBytes(message));
 
         /// <summary>
         /// 发送数据
@@ -213,7 +233,7 @@ namespace Utility.IOs
             }
             catch (Exception ex)
             {
-                Error(this, ex.Message);
+                Error?.Invoke(this, ex.Message);
                 return false;
             }
         }
@@ -224,45 +244,23 @@ namespace Utility.IOs
         /// <param name="ns">networkstream对象</param>
         /// <param name="message">数据</param>
         /// <returns>是否发送成功</returns>
-        public bool Write(NetworkStream ns, string message)
-        {
-            return Write(ns, Encoding.ASCII.GetBytes(message));
-        }
+        public bool Write(NetworkStream ns, string message) => Write(ns, Encoding.ASCII.GetBytes(message));
 
-        /// <summary>
-        /// 读取数据
-        /// </summary>
-        /// <param name="ns">networkstream对象</param>
-        /// <returns>读取到的数据</returns>
-        public byte[] Read(NetworkStream ns)
+        private void DataReceive()
         {
-            byte[] message = new byte[1024];
-            try
+            while (!this.closing)
             {
-                int received = ns.Read(message, 0, 1024);
-                return message.Take(received).ToArray();
-            }
-            catch (Exception ex)
-            {
-                Error(this, ex.Message);
-                return null;
+                byte[] message = Receive();
+                if (message.Length > 0)
+                    DataReceived?.Invoke(this, Encoding.ASCII.GetString(message));
             }
         }
 
         private void NewConnectIn()
         {
-            while (!closing)
-                ConnectionAdded.BeginInvoke(this, listener.AcceptTcpClient(), null, null);
+            while (!this.closing)
+                ConnectionAdded?.BeginInvoke(this, this.listener.AcceptTcpClient(), null, null);
         }
-
-        private void DataReceive()
-        {
-            while (!closing)
-            {
-                byte[] message = Receive();
-                if (message.Length > 0)
-                    DataReceived(this, Encoding.ASCII.GetString(message));
-            }
-        }
+        #endregion
     }
 }

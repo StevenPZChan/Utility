@@ -3,8 +3,10 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Design;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
+
 using HalconDotNet;
 
 namespace Utility.Form
@@ -15,6 +17,7 @@ namespace Utility.Form
     [ToolboxBitmap(typeof(HalconROIHelper), "hdevelop_icon.ico")]
     public partial class HalconROIHelper : UserControl
     {
+        #region ShapeTypes Enum
         /// <summary>
         /// 区域按钮枚举
         /// </summary>
@@ -62,37 +65,56 @@ namespace Utility.Form
             /// </summary>
             All = 255
         }
+        #endregion
 
+        #region Fields
+        private readonly DataRow linedata;
+        private readonly DataTable regiondata;
+        private bool line;
+        private ShapeTypes region;
+        #endregion
+
+        #region Constructors
         /// <summary>
-        /// 是否包含画线按钮
+        /// 构造函数
         /// </summary>
-        [Category("外观Ex"), DefaultValue(true), Description("是否包含画线按钮")]
-        public bool LineButton
+        public HalconROIHelper()
         {
-            get { return line; }
-            set
-            {
-                if (line == value)
-                    return;
-                line = value;
-                this.OnPaint();
-            }
+            InitializeComponent();
+            this.LineButton = true;
+            this.RegionButton = ShapeTypes.All;
+            this.DispAll = false;
+            this.DispLine = true;
+            this.DispRegion = true;
+            this.HwControl = null;
+            this.LineColor = "white";
+            this.RegionColor = "green";
+            this.AddColor = "red";
+            this.SubColor = "blue";
+
+            var dt = new DataTable();
+            dt.Columns.Add("Row1", typeof(double));
+            dt.Columns.Add("Column1", typeof(double));
+            dt.Columns.Add("Row2", typeof(double));
+            dt.Columns.Add("Column2", typeof(double));
+            this.linedata = dt.NewRow();
+            this.regiondata = new DataTable();
+            this.regiondata.Columns.Add("Row", typeof(double));
+            this.regiondata.Columns.Add("Column", typeof(double));
+            this.regiondata.Columns.Add("Phi", typeof(double));
+            this.regiondata.Columns.Add("Ra", typeof(double));
+            this.regiondata.Columns.Add("Rb", typeof(double));
+            this.regiondata.Columns.Add("Type", typeof(string));
+            this.regiondata.Columns.Add("ToAdd", typeof(bool));
         }
+        #endregion
+
+        #region Properties
         /// <summary>
-        /// 包含的区域按钮
+        /// 设置显示颜色，默认：线白、区域绿、红增蓝减
         /// </summary>
-        [Category("外观Ex"), DefaultValue(ShapeTypes.All), Description("包含的区域按钮"), DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public ShapeTypes RegionButton
-        {
-            get { return region; }
-            set
-            {
-                if (region == value)
-                    return;
-                region = value;
-                this.OnPaint();
-            }
-        }
+        [Category("显示"), DefaultValue("red"), Description("设置增加区域显示颜色")]
+        public string AddColor { get; set; }
         /// <summary>
         /// 是否显示绘制的所有图形
         /// </summary>
@@ -109,10 +131,50 @@ namespace Utility.Form
         [Category("显示"), DefaultValue(true), Description("是否显示绘制的最终区域")]
         public bool DispRegion { get; set; }
         /// <summary>
+        /// 设置绘制和显示的窗口
+        /// </summary>
+        public HWindowControl HwControl { get; set; }
+
+        /// <summary>
+        /// 是否包含画线按钮
+        /// </summary>
+        [Category("外观Ex"), DefaultValue(true), Description("是否包含画线按钮")]
+        public bool LineButton
+        {
+            get { return this.line; }
+            set
+            {
+                if (this.line == value)
+                    return;
+
+                this.line = value;
+                OnPaint();
+            }
+        }
+
+        /// <summary>
         /// 设置显示颜色，默认：线白、区域绿、红增蓝减
         /// </summary>
         [Category("显示"), DefaultValue("white"), Description("设置线段显示颜色")]
         public string LineColor { get; set; }
+
+        /// <summary>
+        /// 包含的区域按钮
+        /// </summary>
+        [Category("外观Ex"), DefaultValue(ShapeTypes.All), Description("包含的区域按钮"), DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public ShapeTypes RegionButton
+        {
+            get { return this.region; }
+            set
+            {
+                if (this.region == value)
+                    return;
+
+                this.region = value;
+                OnPaint();
+            }
+        }
+
         /// <summary>
         /// 设置显示颜色，默认：线白、区域绿、红增蓝减
         /// </summary>
@@ -121,107 +183,11 @@ namespace Utility.Form
         /// <summary>
         /// 设置显示颜色，默认：线白、区域绿、红增蓝减
         /// </summary>
-        [Category("显示"), DefaultValue("red"), Description("设置增加区域显示颜色")]
-        public string AddColor { get; set; }
-        /// <summary>
-        /// 设置显示颜色，默认：线白、区域绿、红增蓝减
-        /// </summary>
         [Category("显示"), DefaultValue("blue"), Description("设置减去区域显示颜色")]
         public string SubColor { get; set; }
+        #endregion
 
-        /// <summary>
-        /// 设置绘制和显示的窗口
-        /// </summary>
-        public HWindowControl HWControl { get; set; }
-
-        private bool line;
-        private ShapeTypes region;
-        private DataRow linedata;
-        private DataTable regiondata;
-        /// <summary>
-        /// 构造函数
-        /// </summary>
-        public HalconROIHelper()
-        {
-            InitializeComponent();
-            LineButton = true;
-            RegionButton = ShapeTypes.All;
-            DispAll = false;
-            DispLine = true;
-            DispRegion = true;
-            HWControl = null;
-            LineColor = "white";
-            RegionColor = "green";
-            AddColor = "red";
-            SubColor = "blue";
-
-            DataTable dt = new DataTable();
-            dt.Columns.Add("Row1", typeof(double));
-            dt.Columns.Add("Column1", typeof(double));
-            dt.Columns.Add("Row2", typeof(double));
-            dt.Columns.Add("Column2", typeof(double));
-            linedata = dt.NewRow();
-            regiondata = new DataTable();
-            regiondata.Columns.Add("Row", typeof(double));
-            regiondata.Columns.Add("Column", typeof(double));
-            regiondata.Columns.Add("Phi", typeof(double));
-            regiondata.Columns.Add("Ra", typeof(double));
-            regiondata.Columns.Add("Rb", typeof(double));
-            regiondata.Columns.Add("Type", typeof(string));
-            regiondata.Columns.Add("ToAdd", typeof(bool));
-        }
-
-        /// <summary>
-        /// 重置已绘制图形
-        /// </summary>
-        public void Reset()
-        {
-            regiondata.Clear();
-        }
-
-        /// <summary>
-        /// 获取线段数据
-        /// </summary>
-        /// <returns>线段数据DataRow(点1行、点1列、点2行、点2列)</returns>
-        public DataRow GetLineData()
-        {
-            return linedata;
-        }
-
-        /// <summary>
-        /// 获取区域数据
-        /// </summary>
-        /// <returns>区域数据DataTable(中心行、中心列、角度、半长轴、半短轴、椭圆or矩形、加or减)</returns>
-        public DataTable GetRegionData()
-        {
-            return regiondata;
-        }
-
-        /// <summary>
-        /// 从DataRow得到线段
-        /// </summary>
-        /// <param name="dr">DataRow</param>
-        /// <returns>线段</returns>
-        public HXLDCont GetLine(DataRow dr)
-        {
-            return new HXLDCont(new HTuple((double)dr["Row1"], (double)dr["Row2"]), new HTuple((double)dr["column1"], (double)dr["column2"]));
-        }
-        /// <summary>
-        /// 从DataRow数据获取区域
-        /// </summary>
-        /// <param name="dr">DataRow</param>
-        /// <returns>区域</returns>
-        public HRegion GetRegion(DataRow dr)
-        {
-            string type = dr["Type"] as string;
-            HRegion hRegion = new HRegion();
-            if (type == "Ellipse")
-                hRegion.GenEllipse((double)dr["Row"], (double)dr["Column"], (double)dr["Phi"], (double)dr["Ra"], (double)dr["Rb"]);
-            else if (type == "Rectangle")
-                hRegion.GenRectangle2((double)dr["Row"], (double)dr["Column"], (double)dr["Phi"], (double)dr["Ra"], (double)dr["Rb"]);
-            return hRegion;
-        }
-
+        #region Methods
         /// <summary>
         /// 从DataTable数据获取最终区域
         /// </summary>
@@ -229,7 +195,7 @@ namespace Utility.Form
         /// <returns>最终区域</returns>
         public HRegion GenCompRegion(DataTable data)
         {
-            HRegion hRegion = new HRegion();
+            var hRegion = new HRegion();
             hRegion.GenEmptyRegion();
             foreach (DataRow dr in data.Rows)
             {
@@ -245,241 +211,297 @@ namespace Utility.Form
                 hRegion = htemp.CopyObj(1, -1);
                 htemp.Dispose();
             }
+
             return hRegion;
         }
+
+        /// <summary>
+        /// 从DataRow得到线段
+        /// </summary>
+        /// <param name="dr">DataRow</param>
+        /// <returns>线段</returns>
+        public HXLDCont GetLine(DataRow dr) =>
+            new HXLDCont(new HTuple((double)dr["Row1"], (double)dr["Row2"]), new HTuple((double)dr["column1"], (double)dr["column2"]));
+
+        /// <summary>
+        /// 获取线段数据
+        /// </summary>
+        /// <returns>线段数据DataRow(点1行、点1列、点2行、点2列)</returns>
+        public DataRow GetLineData() => this.linedata;
+
+        /// <summary>
+        /// 从DataRow数据获取区域
+        /// </summary>
+        /// <param name="dr">DataRow</param>
+        /// <returns>区域</returns>
+        public HRegion GetRegion(DataRow dr)
+        {
+            var type = dr["Type"] as string;
+            var hRegion = new HRegion();
+            switch (type)
+            {
+                case "Ellipse":
+                    hRegion.GenEllipse((double)dr["Row"], (double)dr["Column"], (double)dr["Phi"], (double)dr["Ra"], (double)dr["Rb"]);
+                    break;
+                case "Rectangle":
+                    hRegion.GenRectangle2((double)dr["Row"], (double)dr["Column"], (double)dr["Phi"], (double)dr["Ra"], (double)dr["Rb"]);
+                    break;
+            }
+
+            return hRegion;
+        }
+
+        /// <summary>
+        /// 获取区域数据
+        /// </summary>
+        /// <returns>区域数据DataTable(中心行、中心列、角度、半长轴、半短轴、椭圆or矩形、加or减)</returns>
+        public DataTable GetRegionData() => this.regiondata;
+
+        /// <summary>
+        /// 重置已绘制图形
+        /// </summary>
+        public void Reset() => this.regiondata.Clear();
 
         /// <summary>
         /// 撤销上一步操作
         /// </summary>
         public void Undo()
         {
-            int num = regiondata.Rows.Count;
+            int num = this.regiondata.Rows.Count;
             if (num == 0)
                 return;
 
-            regiondata.Rows.RemoveAt(num - 1);
-            if (DispRegion)
-            {
-                HRegion hRegion = GenCompRegion(regiondata);
-                HWControl.HalconWindow.SetColor(RegionColor);
-                HWControl.HalconWindow.DispObj(hRegion);
-                hRegion.Dispose();
-            }
+            this.regiondata.Rows.RemoveAt(num - 1);
+            if (!this.DispRegion)
+                return;
+
+            HRegion hRegion = GenCompRegion(this.regiondata);
+            this.HwControl.HalconWindow.SetColor(this.RegionColor);
+            this.HwControl.HalconWindow.DispObj(hRegion);
+            hRegion.Dispose();
         }
 
         private void btnLine_Click(object sender, EventArgs e)
         {
-            if (HWControl != null)
+            if (this.HwControl != null)
             {
                 double row1, column1, row2, column2;
-                HWControl.HalconWindow.SetColor(LineColor);
-                HWControl.Focus();
-                HWControl.HalconWindow.DrawLine(out row1, out column1, out row2, out column2);
-                linedata["Row1"] = row1;
-                linedata["Column1"] = column1;
-                linedata["Row2"] = row2;
-                linedata["Column2"] = column2;
+                this.HwControl.HalconWindow.SetColor(this.LineColor);
+                this.HwControl.Focus();
+                this.HwControl.HalconWindow.DrawLine(out row1, out column1, out row2, out column2);
+                this.linedata["Row1"] = row1;
+                this.linedata["Column1"] = column1;
+                this.linedata["Row2"] = row2;
+                this.linedata["Column2"] = column2;
 
-                if (DispLine)
+                if (this.DispLine)
                 {
-                    HXLDCont hLine = GetLine(linedata);
-                    HWControl.HalconWindow.SetColor(LineColor);
-                    HWControl.HalconWindow.DispObj(hLine);
+                    HXLDCont hLine = GetLine(this.linedata);
+                    this.HwControl.HalconWindow.SetColor(this.LineColor);
+                    this.HwControl.HalconWindow.DispObj(hLine);
                     hLine.Dispose();
                 }
             }
-            this.OnClick(e);
+
+            OnClick(e);
         }
 
         private void btnRegion_Click(object sender, EventArgs e)
         {
-            if (HWControl != null)
+            if (this.HwControl != null)
             {
                 double row, column, phi, ra, rb;
-                Button btn = (Button)sender;
-                HWControl.HalconWindow.SetColor(RegionColor);
-                HWControl.Focus();
-                if (btn == btnDrawCircle)
+                var btn = (Button)sender;
+                this.HwControl.HalconWindow.SetColor(this.RegionColor);
+                this.HwControl.Focus();
+                if (btn == this.btnDrawCircle)
                 {
-                    HWControl.HalconWindow.DrawCircle(out row, out column, out ra);
-                    regiondata.Rows.Add(row, column, 0, ra, ra, "Ellipse", true);
+                    this.HwControl.HalconWindow.DrawCircle(out row, out column, out ra);
+                    this.regiondata.Rows.Add(row, column, 0, ra, ra, "Ellipse", true);
                 }
-                else if (btn == btnDrawEllipse)
+                else if (btn == this.btnDrawEllipse)
                 {
-                    HWControl.HalconWindow.DrawEllipse(out row, out column, out phi, out ra, out rb);
-                    regiondata.Rows.Add(row, column, phi, ra, rb, "Ellipse", true);
+                    this.HwControl.HalconWindow.DrawEllipse(out row, out column, out phi, out ra, out rb);
+                    this.regiondata.Rows.Add(row, column, phi, ra, rb, "Ellipse", true);
                 }
-                else if (btn == btnDrawRec1)
+                else if (btn == this.btnDrawRec1)
                 {
                     double row1, column1, row2, column2;
-                    HWControl.HalconWindow.DrawRectangle1(out row1, out column1, out row2, out column2);
-                    regiondata.Rows.Add((row1 + row2) / 2, (column1 + column2) / 2, 0, (column2 - column1) / 2, (row2 - row1) / 2, "Rectangle", true);
+                    this.HwControl.HalconWindow.DrawRectangle1(out row1, out column1, out row2, out column2);
+                    this.regiondata.Rows.Add((row1 + row2) / 2, (column1 + column2) / 2, 0, (column2 - column1) / 2, (row2 - row1) / 2, "Rectangle", true);
                 }
-                else if (btn == btnDrawRec2)
+                else if (btn == this.btnDrawRec2)
                 {
-                    HWControl.HalconWindow.DrawRectangle2(out row, out column, out phi, out ra, out rb);
-                    regiondata.Rows.Add(row, column, phi, ra, rb, "Rectangle", true);
+                    this.HwControl.HalconWindow.DrawRectangle2(out row, out column, out phi, out ra, out rb);
+                    this.regiondata.Rows.Add(row, column, phi, ra, rb, "Rectangle", true);
                 }
-                else if (btn == btnDiffCircle)
+                else if (btn == this.btnDiffCircle)
                 {
-                    HWControl.HalconWindow.DrawCircle(out row, out column, out ra);
-                    regiondata.Rows.Add(row, column, 0, ra, ra, "Ellipse", false);
+                    this.HwControl.HalconWindow.DrawCircle(out row, out column, out ra);
+                    this.regiondata.Rows.Add(row, column, 0, ra, ra, "Ellipse", false);
                 }
-                else if (btn == btnDiffEllipse)
+                else if (btn == this.btnDiffEllipse)
                 {
-                    HWControl.HalconWindow.DrawEllipse(out row, out column, out phi, out ra, out rb);
-                    regiondata.Rows.Add(row, column, phi, ra, rb, "Ellipse", false);
+                    this.HwControl.HalconWindow.DrawEllipse(out row, out column, out phi, out ra, out rb);
+                    this.regiondata.Rows.Add(row, column, phi, ra, rb, "Ellipse", false);
                 }
-                else if (btn == btnDiffRec1)
+                else if (btn == this.btnDiffRec1)
                 {
                     double row1, column1, row2, column2;
-                    HWControl.HalconWindow.DrawRectangle1(out row1, out column1, out row2, out column2);
-                    regiondata.Rows.Add((row1 + row2) / 2, (column1 + column2) / 2, 0, (column2 - column1) / 2, (row2 - row1) / 2, "Rectangle", false);
+                    this.HwControl.HalconWindow.DrawRectangle1(out row1, out column1, out row2, out column2);
+                    this.regiondata.Rows.Add((row1 + row2) / 2, (column1 + column2) / 2, 0, (column2 - column1) / 2, (row2 - row1) / 2, "Rectangle", false);
                 }
-                else if (btn == btnDiffRec2)
+                else if (btn == this.btnDiffRec2)
                 {
-                    HWControl.HalconWindow.DrawRectangle2(out row, out column, out phi, out ra, out rb);
-                    regiondata.Rows.Add(row, column, phi, ra, rb, "Rectangle", false);
+                    this.HwControl.HalconWindow.DrawRectangle2(out row, out column, out phi, out ra, out rb);
+                    this.regiondata.Rows.Add(row, column, phi, ra, rb, "Rectangle", false);
                 }
 
-                if (DispAll)
+                if (this.DispAll)
                 {
-                    DataRow dr = regiondata.Rows[regiondata.Rows.Count - 1];
+                    DataRow dr = this.regiondata.Rows[this.regiondata.Rows.Count - 1];
                     if ((bool)dr["ToAdd"])
-                        HWControl.HalconWindow.SetColor(AddColor);
+                        this.HwControl.HalconWindow.SetColor(this.AddColor);
                     else
-                        HWControl.HalconWindow.SetColor(SubColor);
+                        this.HwControl.HalconWindow.SetColor(this.SubColor);
                     HRegion hRegion = GetRegion(dr);
-                    HWControl.HalconWindow.DispObj(hRegion);
+                    this.HwControl.HalconWindow.DispObj(hRegion);
                     hRegion.Dispose();
                 }
 
-                if (DispRegion)
+                if (this.DispRegion)
                 {
-                    HRegion hRegion = GenCompRegion(regiondata);
-                    HWControl.HalconWindow.SetColor(RegionColor);
-                    HWControl.HalconWindow.DispObj(hRegion);
+                    HRegion hRegion = GenCompRegion(this.regiondata);
+                    this.HwControl.HalconWindow.SetColor(this.RegionColor);
+                    this.HwControl.HalconWindow.DispObj(hRegion);
                     hRegion.Dispose();
                 }
             }
-            this.OnClick(e);
+
+            OnClick(e);
         }
 
         private void OnPaint()
         {
-            int num = (line ? 1 : 0)
-                + System.Text.RegularExpressions.Regex.Matches(Convert.ToString((int)region, 2), @"1").Count;
+            int num = (this.line ? 1 : 0) + Regex.Matches(Convert.ToString((int)this.region, 2), @"1").Count;
 
-            tableLayoutPanel1.SuspendLayout();
-            tableLayoutPanel1.Controls.Clear();
-            tableLayoutPanel1.ColumnCount = num;
-            tableLayoutPanel1.ColumnStyles.Clear();
-            for (int i = 0; i < num; i++)
-                tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F / num));
-            int current = 0;
-            if (line)
-                tableLayoutPanel1.Controls.Add(btnLine, current++, 0);
-            if ((region & ShapeTypes.Circle) > 0)
-                tableLayoutPanel1.Controls.Add(btnDrawCircle, current++, 0);
-            if ((region & ShapeTypes.Ellipse) > 0)
-                tableLayoutPanel1.Controls.Add(btnDrawEllipse, current++, 0);
-            if ((region & ShapeTypes.Rectangle1) > 0)
-                tableLayoutPanel1.Controls.Add(btnDrawRec1, current++, 0);
-            if ((region & ShapeTypes.Rectangle2) > 0)
-                tableLayoutPanel1.Controls.Add(btnDrawRec2, current++, 0);
-            if ((region & ShapeTypes.DCircle) > 0)
-                tableLayoutPanel1.Controls.Add(btnDiffCircle, current++, 0);
-            if ((region & ShapeTypes.DEllipse) > 0)
-                tableLayoutPanel1.Controls.Add(btnDiffEllipse, current++, 0);
-            if ((region & ShapeTypes.DRectangle1) > 0)
-                tableLayoutPanel1.Controls.Add(btnDiffRec1, current++, 0);
-            if ((region & ShapeTypes.DRectangle2) > 0)
-                tableLayoutPanel1.Controls.Add(btnDiffRec2, current++, 0);
-            tableLayoutPanel1.ResumeLayout(true);
+            this.tableLayoutPanel1.SuspendLayout();
+            this.tableLayoutPanel1.Controls.Clear();
+            this.tableLayoutPanel1.ColumnCount = num;
+            this.tableLayoutPanel1.ColumnStyles.Clear();
+            for (var i = 0; i < num; i++)
+                this.tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F / num));
+            var current = 0;
+            if (this.line)
+                this.tableLayoutPanel1.Controls.Add(this.btnLine, current++, 0);
+            if ((this.region & ShapeTypes.Circle) > 0)
+                this.tableLayoutPanel1.Controls.Add(this.btnDrawCircle, current++, 0);
+            if ((this.region & ShapeTypes.Ellipse) > 0)
+                this.tableLayoutPanel1.Controls.Add(this.btnDrawEllipse, current++, 0);
+            if ((this.region & ShapeTypes.Rectangle1) > 0)
+                this.tableLayoutPanel1.Controls.Add(this.btnDrawRec1, current++, 0);
+            if ((this.region & ShapeTypes.Rectangle2) > 0)
+                this.tableLayoutPanel1.Controls.Add(this.btnDrawRec2, current++, 0);
+            if ((this.region & ShapeTypes.DCircle) > 0)
+                this.tableLayoutPanel1.Controls.Add(this.btnDiffCircle, current++, 0);
+            if ((this.region & ShapeTypes.DEllipse) > 0)
+                this.tableLayoutPanel1.Controls.Add(this.btnDiffEllipse, current++, 0);
+            if ((this.region & ShapeTypes.DRectangle1) > 0)
+                this.tableLayoutPanel1.Controls.Add(this.btnDiffRec1, current++, 0);
+            if ((this.region & ShapeTypes.DRectangle2) > 0)
+                this.tableLayoutPanel1.Controls.Add(this.btnDiffRec2, current, 0);
+            this.tableLayoutPanel1.ResumeLayout(true);
         }
+        #endregion
 
+        #region Nested type: SelectShapes
         internal class SelectShapes : UserControl
         {
-            public ShapeTypes ShapeTypes
-            {
-                get { return helper.RegionButton; }
-                set
-                {
-                    total.Checked = value == ShapeTypes.All;
-                    for (int i = 0; i < 8; i++)
-                        sub[i].Checked = (value & (ShapeTypes)(1 << i)) > 0;
-                }
-            }
-
+            #region Fields
+            private readonly HalconROIHelper helper;
+            private readonly CheckBox[] sub = new CheckBox[8];
             private FlowLayoutPanel flowLayoutPanel1;
             private CheckBox total;
-            private CheckBox[] sub = new CheckBox[8];
-            private HalconROIHelper helper;
+            #endregion
+
+            #region Constructors
             public SelectShapes(HalconROIHelper helper)
             {
                 InitializeComponent();
                 this.helper = helper;
-                this.Load += (sender, e) => ShapeTypes = helper.RegionButton;
-                this.Leave += (sender, e) => {
-                    int r = 0;
-                    for (int i = 0; i < 8; i++)
-                        r += (sub[i].Checked ? 1 << i : 0);
+                Load += (sender, e) => this.ShapeTypes = helper.RegionButton;
+                Leave += (sender, e) => {
+                    var r = 0;
+                    for (var i = 0; i < 8; i++)
+                        r += this.sub[i].Checked ? 1 << i : 0;
                     helper.RegionButton = (ShapeTypes)r;
                 };
             }
+            #endregion
 
+            #region Properties
+            public ShapeTypes ShapeTypes
+            {
+                get { return this.helper.RegionButton; }
+                set
+                {
+                    this.total.Checked = value == ShapeTypes.All;
+                    for (var i = 0; i < 8; i++)
+                        this.sub[i].Checked = (value & (ShapeTypes)(1 << i)) > 0;
+                }
+            }
+            #endregion
+
+            #region Methods
             private void InitializeComponent()
             {
-                flowLayoutPanel1 = new FlowLayoutPanel();
-                flowLayoutPanel1.BackColor = SystemColors.Control;
-                flowLayoutPanel1.Dock = DockStyle.Fill;
-                this.Controls.Add(flowLayoutPanel1);
+                this.flowLayoutPanel1 = new FlowLayoutPanel {BackColor = SystemColors.Control, Dock = DockStyle.Fill};
+                this.Controls.Add(this.flowLayoutPanel1);
                 this.Height = 225;
 
-                total = new CheckBox();
-                total.Text = "全部";
-                total.CheckedChanged += (sender, e) => {
-                    foreach (CheckBox cb in sub)
-                        cb.Checked = total.Checked;
+                this.total = new CheckBox {Text = "全部"};
+                this.total.CheckedChanged += (sender, e) => {
+                    foreach (CheckBox cb in this.sub)
+                        cb.Checked = this.total.Checked;
                 };
-                flowLayoutPanel1.Controls.Add(total);
+                this.flowLayoutPanel1.Controls.Add(this.total);
 
-                string[] text = new string[] {
-                    "绘制圆形", "绘制椭圆", "绘制轴平行矩形", "绘制旋转矩形", "减去圆形", "减去椭圆", "减去轴平行矩形", "减去旋转矩形" };
-                for (int i = 0; i < 8; i++)
+                string[] text = {"绘制圆形", "绘制椭圆", "绘制轴平行矩形", "绘制旋转矩形", "减去圆形", "减去椭圆", "减去轴平行矩形", "减去旋转矩形"};
+                for (var i = 0; i < 8; i++)
                 {
-                    sub[i] = new CheckBox();
-                    sub[i].Text = text[i];
-                    sub[i].Margin = new Padding(24, 0, 0, 0);
-                    flowLayoutPanel1.Controls.Add(sub[i]);
+                    this.sub[i] = new CheckBox {Text = text[i], Margin = new Padding(24, 0, 0, 0)};
+                    this.flowLayoutPanel1.Controls.Add(this.sub[i]);
                 }
             }
+            #endregion
         }
+        #endregion
 
+        #region Nested type: ShapeTypesEditor
         internal class ShapeTypesEditor : UITypeEditor
         {
-            public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
-            {
-                if (context != null && context.Instance != null)
-                    return UITypeEditorEditStyle.DropDown;
-                return base.GetEditStyle(context);
-            }
+            #region Methods
             public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
             {
-                IWindowsFormsEditorService editorService = null;
-                if (context != null && context.Instance != null && provider != null)
-                {
-                    editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
-                    if (editorService != null)
-                    {
-                        HalconROIHelper control = (HalconROIHelper)context.Instance;
-                        editorService.DropDownControl(new SelectShapes(control));
-                        value = control.RegionButton;
-                        context.PropertyDescriptor.SetValue(context.Instance, value);
-                    }
-                }
+                if (context?.Instance == null || provider == null)
+                    return base.EditValue(context, provider, value);
+
+                var editorService = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
+                if (editorService == null)
+                    return base.EditValue(context, provider, value);
+
+                var control = (HalconROIHelper)context.Instance;
+                editorService.DropDownControl(new SelectShapes(control));
+                value = control.RegionButton;
+                context.PropertyDescriptor?.SetValue(context.Instance, value);
+
                 return base.EditValue(context, provider, value);
             }
+
+            public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context) =>
+                context?.Instance != null ? UITypeEditorEditStyle.DropDown : base.GetEditStyle(context);
+            #endregion
         }
+        #endregion
     }
 }

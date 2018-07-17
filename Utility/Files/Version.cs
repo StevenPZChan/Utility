@@ -9,6 +9,7 @@ namespace Utility.Files
     /// </summary>
     public static class Version
     {
+        #region Methods
         /// <summary>
         /// 获取版本信息
         /// </summary>
@@ -20,5 +21,6 @@ namespace Utility.Files
             version = FileVersionInfo.GetVersionInfo(file);
             versiontime = new FileInfo(file).LastWriteTime;
         }
+        #endregion
     }
 }

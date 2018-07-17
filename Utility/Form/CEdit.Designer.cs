@@ -32,7 +32,7 @@
             this.cLabel = new System.Windows.Forms.Label();
             this.cButton = new System.Windows.Forms.Button();
             this.cPanelEx = new Utility.Form.PanelEx();
-            this.cTableLayout2 = new System.Windows.Forms.TableLayoutPanel();
+            this.Container = new System.Windows.Forms.TableLayoutPanel();
             this.cTableLayout1.SuspendLayout();
             this.cPanelEx.SuspendLayout();
             this.SuspendLayout();
@@ -84,7 +84,7 @@
             this.cPanelEx.BorderSide = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
-            this.cPanelEx.Controls.Add(this.cTableLayout2);
+            this.cPanelEx.Controls.Add(this.Container);
             this.cPanelEx.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cPanelEx.Location = new System.Drawing.Point(50, 3);
             this.cPanelEx.Name = "cPanelEx";
@@ -93,17 +93,17 @@
             // 
             // cTableLayout2
             // 
-            this.cTableLayout2.BackColor = System.Drawing.Color.Transparent;
-            this.cTableLayout2.ColumnCount = 1;
-            this.cTableLayout2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.cTableLayout2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cTableLayout2.Location = new System.Drawing.Point(0, 0);
-            this.cTableLayout2.Margin = new System.Windows.Forms.Padding(0);
-            this.cTableLayout2.Name = "cTableLayout2";
-            this.cTableLayout2.RowCount = 1;
-            this.cTableLayout2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.cTableLayout2.Size = new System.Drawing.Size(75, 23);
-            this.cTableLayout2.TabIndex = 0;
+            this.Container.BackColor = System.Drawing.Color.Transparent;
+            this.Container.ColumnCount = 1;
+            this.Container.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.Container.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Container.Location = new System.Drawing.Point(0, 0);
+            this.Container.Margin = new System.Windows.Forms.Padding(0);
+            this.Container.Name = "Container";
+            this.Container.RowCount = 1;
+            this.Container.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.Container.Size = new System.Drawing.Size(75, 23);
+            this.Container.TabIndex = 0;
             // 
             // CEdit
             // 
@@ -124,6 +124,5 @@
         private System.Windows.Forms.Label cLabel;
         private System.Windows.Forms.Button cButton;
         private PanelEx cPanelEx;
-        private System.Windows.Forms.TableLayoutPanel cTableLayout2;
     }
 }

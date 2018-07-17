@@ -5,65 +5,28 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
 using TsRemoteLib;
 
 namespace Utility.IOs
 {
     /// <summary>
-    /// 单个工件结构
-    /// </summary>
-    public struct Workpiece
-    {
-        double X, Y, C;
-        int Opt1, Opt2, Opt3;
-
-        /// <summary>
-        /// 构造函数
-        /// </summary>
-        /// <param name="x">X坐标</param>
-        /// <param name="y">Y坐标</param>
-        /// <param name="c">C坐标</param>
-        /// <param name="opt1">附加数据1</param>
-        /// <param name="opt2">附加数据2</param>
-        /// <param name="opt3">附加数据3</param>
-        public Workpiece(double x, double y, double c, int opt1 = 0, int opt2 = 0, int opt3 = 0)
-        {
-            X = x;
-            Y = y;
-            C = c;
-            Opt1 = opt1;
-            Opt2 = opt2;
-            Opt3 = opt3;
-        }
-
-        /// <summary>
-        /// 获取该工件的发送数据
-        /// </summary>
-        /// <returns>发送数据bytes</returns>
-        public string GetMessage()
-        {
-            string message = string.Join(",", X.ToString("f3"), Y.ToString("f3"), C.ToString("f3"), Opt1.ToString(), Opt2.ToString(), Opt3.ToString());
-            return message;
-        }
-    }
-
-    /// <summary>
     /// 东芝四轴机器人数据交换类
     /// </summary>
     public static class TSRobotCommand
     {
+        #region Methods
         /// <summary>
         /// 获取工件集合的发送数据
         /// </summary>
         /// <param name="wps">工件集合</param>
         /// <returns>前最多10个工件的位置发送数据bytes</returns>
-        public static byte[] GetSendingMessage(this IEnumerable<Workpiece> wps)
+        public static byte[] GetSendingMessage(this IList<Workpiece> wps)
         {
-            short num = (short)(wps.Count() > 10 ? 10 : wps.Count());
-            var w = wps.Take(num);
+            var num = (short)(wps.Count() > 10 ? 10 : wps.Count());
+            IEnumerable<Workpiece> w = wps.Take(num);
             string message = num.ToString();
-            foreach (Workpiece wp in w)
-                message = string.Concat(message, ",", wp.GetMessage());
+            message = w.Aggregate(message, (current, wp) => string.Concat(current, ",", wp.GetMessage()));
             return Encoding.ASCII.GetBytes(string.Concat(message, ",\r"));
         }
 
@@ -72,10 +35,7 @@ namespace Utility.IOs
         /// </summary>
         /// <param name="wp">工件对象</param>
         /// <returns>工件位置发送数据</returns>
-        public static byte[] GetSendingMessage(this Workpiece wp)
-        {
-            return new Workpiece[] { wp }.GetSendingMessage();
-        }
+        public static byte[] GetSendingMessage(this Workpiece wp) => new[] {wp}.GetSendingMessage();
 
         /// <summary>
         /// 解析机器人返回数据
@@ -95,16 +55,16 @@ namespace Utility.IOs
                         return null;
                     else
                     {
-                        List<int> result = new List<int>();
-                        for (int i = 1; i < 15; i++)
+                        var result = new List<int>();
+                        for (var i = 1; i < 15; i++)
                             result.Add(int.Parse(match.Groups[i].Value));
                         response = "OK\r";
                         return result.ToArray();
                     }
-                default:
-                    return null;
+                default: return null;
             }
         }
+        #endregion
     }
 
     /// <summary>
@@ -112,58 +72,13 @@ namespace Utility.IOs
     /// </summary>
     public class TSRobotScara : TsRemoteS
     {
-        /// <summary>
-        /// 有警报时事件
-        /// </summary>
-        public event EventHandler<string> Alarm;
-        /// <summary>
-        /// 超弛
-        /// </summary>
-        public int Override
-        {
-            get { return status.Override; }
-            set { SetOVRD(value); }
-        }
-        /// <summary>
-        /// 程序运行状态
-        /// </summary>
-        public bool Running { get { return status.RunStatus == 1; } }
-        /// <summary>
-        /// 运行状态缩写
-        /// </summary>
-        public string RunStatus
-        {
-            get
-            {
-                string ovrd = $"{Override}%";
-                string runmode = status.RunMode == 0 ? "CONT" : (status.RunMode == 1 ? "CYCLE" : (status.RunMode == 2 ? "STEP" : "SEGMENT"));
-                string runstatus = status.RunStatus == 0 ? "STOP(RESET)"
-                    : (status.RunStatus == 1 ? "RUN" : (status.RunStatus == 2 ? "STOP(RETRY)" : "STOP(CONT)"));
-                return $"{ovrd} {runmode}:{runstatus}";
-            }
-        }
-        /// <summary>
-        /// 选择运行的程序
-        /// </summary>
-        public string SelectFile { get; private set; }
-        /// <summary>
-        /// 伺服状态
-        /// </summary>
-        public bool Servo
-        {
-            get { return status.ServoStatus == 1; }
-            set
-            {
-                if (value == Servo)
-                    return;
-                if (value)
-                    ServoOn();
-                else
-                    ServoOff();
-            }
-        }
+        #region Fields
+        private readonly Dictionary<int, string> runmode = new Dictionary<int, string> {[0] = "CONT", [1] = "CYCLE", [2] = "STEP", [3] = "SEGMENT"},
+            runstatus = new Dictionary<int, string> {[0] = "STOP(RESET)", [1] = "RUN", [2] = "STOP(RETRY)", [3] = "STOP(CONT)"};
+        private TsStatusMonitor _status;
+        #endregion
 
-        private TsStatusMonitor status;
+        #region Constructors
         /// <summary>
         /// 默认构造函数
         /// </summary>
@@ -174,10 +89,113 @@ namespace Utility.IOs
         /// </summary>
         /// <param name="ipAddress">IP地址</param>
         /// <param name="port">端口号</param>
-        public TSRobotScara(string ipAddress, int port) : this()
+        public TSRobotScara(string ipAddress, int port)
+            : this()
         {
             SetIPaddr(1, ipAddress, port);
         }
+        #endregion
+
+        #region Properties
+        /// <summary>
+        /// 超弛
+        /// </summary>
+        public int Override
+        {
+            get { return this._status.Override; }
+            set { SetOVRD(value); }
+        }
+
+        /// <summary>
+        /// 程序运行状态
+        /// </summary>
+        public bool Running => this._status.RunStatus == 1;
+        /// <summary>
+        /// 运行状态缩写
+        /// </summary>
+        public string RunStatus => $"{this.Override}% {this.runmode[this._status.RunMode]}:{this.runstatus[this._status.RunStatus]}";
+        /// <summary>
+        /// 选择运行的程序
+        /// </summary>
+        public string SelectFile { get; private set; }
+
+        /// <summary>
+        /// 伺服状态
+        /// </summary>
+        public bool Servo
+        {
+            get { return this._status.ServoStatus == 1; }
+            set
+            {
+                if (value == this.Servo)
+                    return;
+
+                if (value)
+                    ServoOn();
+                else
+                    ServoOff();
+            }
+        }
+        #endregion
+
+        #region Events
+        /// <summary>
+        /// 有警报时事件
+        /// </summary>
+        public event EventHandler<string> Alarm;
+        #endregion
+
+        #region Methods
+        /// <summary>
+        /// 最小二乘法标定工具坐标系
+        /// </summary>
+        /// <param name="points">工具位于同一点时的世界坐标集合，SCARA机器人要求不同的C坐标至少两个点</param>
+        /// <returns>工具坐标系</returns>
+        public static TsTransS CalcTransTool(IEnumerable<TsPointS> points)
+        {
+            List<TsPointS> selectp = points.GroupBy(p => p.C).Select(p => p.First()).ToList();
+            if (selectp.Count < 2)
+                return null;
+
+            var newTrans = new TsTransS();
+            var r = new double[(selectp.Count - 1) * 2, 2];
+            var T = new double[(selectp.Count - 1) * 2];
+            for (var i = 1; i < selectp.Count; i++)
+            {
+                r[i * 2 - 2, 0] = Math.Cos(selectp[i].C * Math.PI / 180.0) - Math.Cos(selectp[0].C * Math.PI / 180.0);
+                r[i * 2 - 2, 1] = -Math.Sin(selectp[i].C * Math.PI / 180.0) + Math.Sin(selectp[0].C * Math.PI / 180.0);
+                r[i * 2 - 1, 0] = Math.Sin(selectp[i].C * Math.PI / 180.0) - Math.Sin(selectp[0].C * Math.PI / 180.0);
+                r[i * 2 - 1, 1] = Math.Cos(selectp[i].C * Math.PI / 180.0) - Math.Cos(selectp[0].C * Math.PI / 180.0);
+                T[i * 2 - 2] = selectp[0].X - selectp[i].X;
+                T[i * 2 - 1] = selectp[0].Y - selectp[i].Y;
+            }
+
+            var a = new double[2, 2];
+            var b = new double[2];
+            for (var i = 0; i < 2; i++)
+            {
+                for (var j = 0; j < 2; j++)
+                for (var k = 0; k < (selectp.Count - 1) * 2; k++)
+                    a[i, j] += r[k, i] * r[k, j];
+                for (var k = 0; k < (selectp.Count - 1) * 2; k++)
+                    b[i] += r[k, i] * T[k];
+            }
+
+            newTrans.X = (a[1, 1] * b[0] - a[0, 1] * b[1]) / (a[0, 0] * a[1, 1] - a[0, 1] * a[1, 0]);
+            newTrans.Y = (-a[1, 0] * b[0] + a[0, 0] * b[1]) / (a[0, 0] * a[1, 1] - a[0, 1] * a[1, 0]);
+            newTrans.Z = 0;
+            newTrans.C = 0;
+            return newTrans;
+        }
+
+        /// <summary>
+        /// 两点法标定工件坐标系
+        /// </summary>
+        /// <param name="origin">工件坐标系原点</param>
+        /// <param name="direction">工件坐标系中X正方向上任意一点</param>
+        /// <returns>工件坐标系</returns>
+        public static TsTransS CalcTransWork(TsPointS origin, TsPointS direction) =>
+            new TsTransS {X = origin.X, Y = origin.Y, Z = origin.Z, C = 180.0 / Math.PI * Math.Atan2(direction.Y - origin.Y, direction.X - origin.X)};
 
         /// <summary>
         /// 连接控制器
@@ -186,8 +204,8 @@ namespace Utility.IOs
         public bool Connect()
         {
             bool res = Connect(1);
-            status = GetStatusMonitor();
-            SelectFile = GetStatus().SelectFile;
+            this._status = GetStatusMonitor();
+            this.SelectFile = GetStatus().SelectFile;
             WatchDogStart(200, 0, 0, StatusChanged);
             return res;
         }
@@ -198,10 +216,7 @@ namespace Utility.IOs
         /// <param name="type">连接类型</param>
         /// <returns>是否连接成功</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public new bool Connect(int type)
-        {
-            return base.Connect(type);
-        }
+        public new bool Connect(int type) => base.Connect(type);
 
         /// <summary>
         /// 断开连接
@@ -220,7 +235,7 @@ namespace Utility.IOs
         public new string[] GetDir()
         {
             List<TsFileInfo> files = base.GetDir();
-            List<string> filenames = new List<string>();
+            var filenames = new List<string>();
             foreach (TsFileInfo f in files)
                 filenames.Add(f.name);
             return filenames.ToArray();
@@ -233,89 +248,81 @@ namespace Utility.IOs
         public new void ProgramSelect(string filename)
         {
             base.ProgramSelect(filename);
-            SelectFile = GetStatus().SelectFile;
-        }
-
-        /// <summary>
-        /// 两点法标定工件坐标系
-        /// </summary>
-        /// <param name="origin">工件坐标系原点</param>
-        /// <param name="direction">工件坐标系中X正方向上任意一点</param>
-        /// <returns>工件坐标系</returns>
-        public static TsTransS CalcTransWork(TsPointS origin, TsPointS direction)
-        {
-            TsTransS newTrans = new TsTransS();
-            newTrans.X = origin.X;
-            newTrans.Y = origin.Y;
-            newTrans.Z = origin.Z;
-            newTrans.C = (180.0 / Math.PI) * Math.Atan2(direction.Y - origin.Y, direction.X - origin.X);
-            return newTrans;
-        }
-
-        /// <summary>
-        /// 最小二乘法标定工具坐标系
-        /// </summary>
-        /// <param name="points">工具位于同一点时的世界坐标集合，SCARA机器人要求不同的C坐标至少两个点</param>
-        /// <returns>工具坐标系</returns>
-        public static TsTransS CalcTransTool(IEnumerable<TsPointS> points)
-        {
-            List<TsPointS> selectp = points.GroupBy(p => p.C).Select(p => p.First()).ToList();
-            if (selectp.Count < 2)
-                return null;
-
-            TsTransS newTrans = new TsTransS();
-            double[,] R = new double[(selectp.Count - 1) * 2, 2];
-            double[] T = new double[(selectp.Count - 1) * 2];
-            for (int i = 1; i < selectp.Count; i++)
-            {
-                R[i * 2 - 2, 0] = Math.Cos(selectp[i].C * Math.PI / 180.0) - Math.Cos(selectp[0].C * Math.PI / 180.0);
-                R[i * 2 - 2, 1] = -Math.Sin(selectp[i].C * Math.PI / 180.0) + Math.Sin(selectp[0].C * Math.PI / 180.0);
-                R[i * 2 - 1, 0] = Math.Sin(selectp[i].C * Math.PI / 180.0) - Math.Sin(selectp[0].C * Math.PI / 180.0);
-                R[i * 2 - 1, 1] = Math.Cos(selectp[i].C * Math.PI / 180.0) - Math.Cos(selectp[0].C * Math.PI / 180.0);
-                T[i * 2 - 2] = selectp[0].X - selectp[i].X;
-                T[i * 2 - 1] = selectp[0].Y - selectp[i].Y;
-            }
-            double[,] A = new double[2, 2];
-            double[] b = new double[2];
-            for (int i = 0; i < 2; i++)
-            {
-                for (int j = 0; j < 2; j++)
-                    for (int k = 0; k < (selectp.Count - 1) * 2; k++)
-                        A[i, j] += R[k, i] * R[k, j];
-                for (int k = 0; k < (selectp.Count - 1) * 2; k++)
-                    b[i] += R[k, i] * T[k];
-            }
-
-            newTrans.X = (A[1, 1] * b[0] - A[0, 1] * b[1]) / (A[0, 0] * A[1, 1] - A[0, 1] * A[1, 0]);
-            newTrans.Y = (-A[1, 0] * b[0] + A[0, 0] * b[1]) / (A[0, 0] * A[1, 1] - A[0, 1] * A[1, 0]);
-            newTrans.Z = 0;
-            newTrans.C = 0;
-            return newTrans;
+            this.SelectFile = GetStatus().SelectFile;
         }
 
         private void StatusChanged(TsStatusMonitor status)
         {
-            this.status = status;
+            this._status = status;
             if (status.AlarmLevel > 0)
             {
                 List<TsAlarm> currentAlarms = GetCurrentAlarm();
-                string alarmmessage = "";
+                var alarmmessage = "";
                 foreach (TsAlarm alarm in currentAlarms)
                     alarmmessage += $"{alarm.Date} {alarm.AlarmNo} {alarm.AlarmMes}\r\n";
                 Alarm?.Invoke(this, alarmmessage);
             }
-            if (status.BreakCommand == 1 || status.StopCommand == 1)
-            {
-            }
-            if (status.EmergencyStop == 1 || status.SafetyStop == 1)
-            {
-            }
-            if (status.EtherNetConnection == 1)
-            {
-                WatchDogStop();
-                Task.Delay(1000).Wait();
-                Connect(1);
-            }
+
+            if (status.BreakCommand == 1 || status.StopCommand == 1) { }
+
+            if (status.EmergencyStop == 1 || status.SafetyStop == 1) { }
+
+            if (status.EtherNetConnection != 1)
+                return;
+
+            WatchDogStop();
+            Task.Delay(1000).Wait();
+            Connect(1);
         }
+        #endregion
+    }
+
+    /// <summary>
+    /// 单个工件结构
+    /// </summary>
+    public struct Workpiece
+    {
+        #region Fields
+        private readonly double _c;
+        private readonly int _opt1;
+        private readonly int _opt2;
+        private readonly int _opt3;
+        private readonly double _x;
+        private readonly double _y;
+        #endregion Fields
+
+        #region Constructors
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="x">X坐标</param>
+        /// <param name="y">Y坐标</param>
+        /// <param name="c">C坐标</param>
+        /// <param name="opt1">附加数据1</param>
+        /// <param name="opt2">附加数据2</param>
+        /// <param name="opt3">附加数据3</param>
+        public Workpiece(double x, double y, double c, int opt1 = 0, int opt2 = 0, int opt3 = 0)
+        {
+            this._x = x;
+            this._y = y;
+            this._c = c;
+            this._opt1 = opt1;
+            this._opt2 = opt2;
+            this._opt3 = opt3;
+        }
+        #endregion Constructors
+
+        #region Methods
+        /// <summary>
+        /// 获取该工件的发送数据
+        /// </summary>
+        /// <returns>发送数据bytes</returns>
+        public string GetMessage()
+        {
+            string message = string.Join(",", this._x.ToString("f3"), this._y.ToString("f3"), this._c.ToString("f3"), this._opt1.ToString(),
+                this._opt2.ToString(), this._opt3.ToString());
+            return message;
+        }
+        #endregion Methods
     }
 }

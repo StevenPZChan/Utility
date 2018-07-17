@@ -69,13 +69,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cameras\BaslerCam.Designer.cs">
-      <DependentUpon>BaslerCam.cs</DependentUpon>
+    <Compile Include="Cameras\BaslerCam.cs">
+      <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Cameras\BaslerCamProperty.Designer.cs">
+      <DependentUpon>BaslerCamProperty.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cameras\BaslerCamExtends.cs" />
     <Compile Include="Cameras\HalconCameraConverter.cs" />
     <Compile Include="Cameras\TISCam.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Cameras\TISCamExtends.cs" />
     <Compile Include="Database\DBOleHelper.cs" />
     <Compile Include="Files\PicFile.cs" />
     <Compile Include="Files\Version.cs" />
@@ -108,6 +113,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="IOs\DAMCommand.cs" />
+    <Compile Include="IOs\KeyBoardHook.cs" />
     <Compile Include="IOs\TCPUtil.cs" />
     <Compile Include="IOs\TSRobotCommand.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -116,7 +122,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Software\AutoUpdate.cs" />
-    <Compile Include="Cameras\BaslerCam.cs">
+    <Compile Include="Cameras\BaslerCamProperty.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Files\CsvFile.cs" />
@@ -139,8 +145,8 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Cameras\BaslerCam.resx">
-      <DependentUpon>BaslerCam.cs</DependentUpon>
+    <EmbeddedResource Include="Cameras\BaslerCamProperty.resx">
+      <DependentUpon>BaslerCamProperty.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Cameras\TISCam.resx">
       <DependentUpon>TISCam.cs</DependentUpon>

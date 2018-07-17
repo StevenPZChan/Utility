@@ -10,6 +10,7 @@ namespace Utility.Form
     /// </summary>
     public static class UIControl
     {
+        #region Methods
         /// <summary>
         /// 为控件的某个属性赋值，跨线程时自动使用委托
         /// </summary>
@@ -19,7 +20,7 @@ namespace Utility.Form
         public static void Assign(this Control control, string property, object value)
         {
             if (!control.InvokeRequired)
-                control.GetType().GetProperty(property, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase).SetValue(control, value);
+                control.GetType().GetProperty(property, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)?.SetValue(control, value);
             else
                 control.BeginInvoke(new Action<Control, string, object>(Assign), control, property, value);
         }
@@ -47,12 +48,12 @@ namespace Utility.Form
         {
             try
             {
-                for (int i = 0; i < controllist.Count; i++)
+                for (var i = 0; i < controllist.Count; i++)
                     Assign(controllist[i], property, valuelist[index[i]]);
             }
-            catch
+            catch (Exception)
             {
-                return;
+                // ignored
             }
         }
 
@@ -63,7 +64,8 @@ namespace Utility.Form
         /// <param name="property"></param>
         /// <param name="valuelist"></param>
         /// <param name="index"></param>
-        public static void Assign(this IDictionary<string, Control> controllist, string property, IDictionary<string, object> valuelist, IDictionary<string, string> index)
+        public static void Assign(this IDictionary<string, Control> controllist, string property, IDictionary<string, object> valuelist,
+            IDictionary<string, string> index)
         {
             try
             {
@@ -71,10 +73,11 @@ namespace Utility.Form
                 foreach (string key in keys)
                     Assign(controllist[key], property, valuelist[index[key]]);
             }
-            catch
+            catch (Exception)
             {
-                return;
+                // ignored
             }
         }
+        #endregion
     }
 }

@@ -33,41 +33,41 @@
             this.sharpnessEnable = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
-            this.gammaEnable = new System.Windows.Forms.CheckBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.fpsEnable = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.packetSize = new Utility.Form.CTextBox();
             this.transferDelay = new Utility.Form.CTextBox();
             this.dataDelay = new Utility.Form.CTextBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.triggerSource = new Utility.Form.CComboBox();
             this.triggerSelector = new Utility.Form.CComboBox();
             this.triggerDelay = new Utility.Form.CTextBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.gainAuto = new Utility.Form.CCheckBox();
+            this.gammaEnable = new System.Windows.Forms.CheckBox();
             this.exposureTime = new Utility.Form.CTextBox();
             this.gainValue = new Utility.Form.CTextBox();
             this.gammaValue = new Utility.Form.CTextBox();
             this.sharpnessValue = new Utility.Form.CTextBox();
             this.exposureAuto = new Utility.Form.CCheckBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.fpsValue = new Utility.Form.CTextBox();
             this.imageHeight = new Utility.Form.CTextBox();
             this.imageWidth = new Utility.Form.CTextBox();
             this.pixelFormat = new Utility.Form.CComboBox();
+            this.fpsEnable = new System.Windows.Forms.CheckBox();
             this.cameraSelector = new Utility.Form.CComboBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.groupBox4.SuspendLayout();
+            this.tableLayoutPanel5.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
-            this.tableLayoutPanel5.SuspendLayout();
             this.SuspendLayout();
             // 
             // triggerPolarity
@@ -142,133 +142,6 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "传输设置";
             // 
-            // groupBox3
-            // 
-            this.groupBox3.Controls.Add(this.tableLayoutPanel4);
-            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox3.Location = new System.Drawing.Point(3, 217);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(238, 136);
-            this.groupBox3.TabIndex = 4;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "触发设置";
-            // 
-            // tableLayoutPanel4
-            // 
-            this.tableLayoutPanel4.ColumnCount = 2;
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel4.Controls.Add(this.triggerEnable, 1, 0);
-            this.tableLayoutPanel4.Controls.Add(this.triggerPolarity, 1, 1);
-            this.tableLayoutPanel4.Controls.Add(this.triggerSource, 0, 1);
-            this.tableLayoutPanel4.Controls.Add(this.triggerSelector, 0, 0);
-            this.tableLayoutPanel4.Controls.Add(this.triggerDelay, 0, 2);
-            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel4.Location = new System.Drawing.Point(3, 17);
-            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
-            this.tableLayoutPanel4.RowCount = 3;
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(232, 116);
-            this.tableLayoutPanel4.TabIndex = 3;
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.tableLayoutPanel3);
-            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox2.Location = new System.Drawing.Point(247, 38);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(239, 173);
-            this.groupBox2.TabIndex = 3;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "采集设置";
-            // 
-            // tableLayoutPanel3
-            // 
-            this.tableLayoutPanel3.ColumnCount = 2;
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.Controls.Add(this.gainAuto, 0, 1);
-            this.tableLayoutPanel3.Controls.Add(this.sharpnessEnable, 0, 3);
-            this.tableLayoutPanel3.Controls.Add(this.gammaEnable, 0, 2);
-            this.tableLayoutPanel3.Controls.Add(this.exposureTime, 1, 0);
-            this.tableLayoutPanel3.Controls.Add(this.gainValue, 1, 1);
-            this.tableLayoutPanel3.Controls.Add(this.gammaValue, 1, 2);
-            this.tableLayoutPanel3.Controls.Add(this.sharpnessValue, 1, 3);
-            this.tableLayoutPanel3.Controls.Add(this.exposureAuto, 0, 0);
-            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel3.Location = new System.Drawing.Point(3, 17);
-            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
-            this.tableLayoutPanel3.RowCount = 4;
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(233, 153);
-            this.tableLayoutPanel3.TabIndex = 3;
-            // 
-            // gammaEnable
-            // 
-            this.gammaEnable.AutoSize = true;
-            this.gammaEnable.Checked = true;
-            this.gammaEnable.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.gammaEnable.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gammaEnable.Enabled = false;
-            this.gammaEnable.Location = new System.Drawing.Point(3, 79);
-            this.gammaEnable.Name = "gammaEnable";
-            this.gammaEnable.Size = new System.Drawing.Size(169, 32);
-            this.gammaEnable.TabIndex = 1;
-            this.gammaEnable.Text = "灰度系数";
-            this.gammaEnable.UseVisualStyleBackColor = true;
-            this.gammaEnable.CheckedChanged += new System.EventHandler(this.gammaEnable_CheckedChanged);
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.tableLayoutPanel2);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox1.Location = new System.Drawing.Point(3, 38);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(238, 173);
-            this.groupBox1.TabIndex = 2;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "图像设置";
-            // 
-            // tableLayoutPanel2
-            // 
-            this.tableLayoutPanel2.ColumnCount = 2;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Controls.Add(this.fpsValue, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.imageHeight, 0, 3);
-            this.tableLayoutPanel2.Controls.Add(this.imageWidth, 0, 2);
-            this.tableLayoutPanel2.Controls.Add(this.pixelFormat, 0, 1);
-            this.tableLayoutPanel2.Controls.Add(this.fpsEnable, 0, 0);
-            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 17);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 4;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(232, 153);
-            this.tableLayoutPanel2.TabIndex = 7;
-            // 
-            // fpsEnable
-            // 
-            this.fpsEnable.AutoSize = true;
-            this.fpsEnable.Checked = true;
-            this.fpsEnable.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.fpsEnable.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fpsEnable.Enabled = false;
-            this.fpsEnable.Location = new System.Drawing.Point(3, 3);
-            this.fpsEnable.Name = "fpsEnable";
-            this.fpsEnable.Size = new System.Drawing.Size(102, 32);
-            this.fpsEnable.TabIndex = 1;
-            this.fpsEnable.Text = "帧率(frame/s)";
-            this.fpsEnable.UseVisualStyleBackColor = true;
-            // 
             // tableLayoutPanel5
             // 
             this.tableLayoutPanel5.ColumnCount = 1;
@@ -328,6 +201,37 @@
             this.dataDelay.TextBackColor = System.Drawing.SystemColors.Window;
             this.dataDelay.TextForeColor = System.Drawing.SystemColors.WindowText;
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.tableLayoutPanel4);
+            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox3.Location = new System.Drawing.Point(3, 217);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(238, 136);
+            this.groupBox3.TabIndex = 4;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "触发设置";
+            // 
+            // tableLayoutPanel4
+            // 
+            this.tableLayoutPanel4.ColumnCount = 2;
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel4.Controls.Add(this.triggerEnable, 1, 0);
+            this.tableLayoutPanel4.Controls.Add(this.triggerPolarity, 1, 1);
+            this.tableLayoutPanel4.Controls.Add(this.triggerSource, 0, 1);
+            this.tableLayoutPanel4.Controls.Add(this.triggerSelector, 0, 0);
+            this.tableLayoutPanel4.Controls.Add(this.triggerDelay, 0, 2);
+            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(3, 17);
+            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            this.tableLayoutPanel4.RowCount = 3;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(232, 116);
+            this.tableLayoutPanel4.TabIndex = 3;
+            // 
             // triggerSource
             // 
             this.triggerSource.ButtonText = "...";
@@ -369,6 +273,41 @@
             this.triggerDelay.TextBackColor = System.Drawing.SystemColors.Window;
             this.triggerDelay.TextForeColor = System.Drawing.SystemColors.WindowText;
             // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.tableLayoutPanel3);
+            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox2.Location = new System.Drawing.Point(247, 38);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(239, 173);
+            this.groupBox2.TabIndex = 3;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "采集设置";
+            // 
+            // tableLayoutPanel3
+            // 
+            this.tableLayoutPanel3.ColumnCount = 2;
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel3.Controls.Add(this.gainAuto, 0, 1);
+            this.tableLayoutPanel3.Controls.Add(this.sharpnessEnable, 0, 3);
+            this.tableLayoutPanel3.Controls.Add(this.gammaEnable, 0, 2);
+            this.tableLayoutPanel3.Controls.Add(this.exposureTime, 1, 0);
+            this.tableLayoutPanel3.Controls.Add(this.gainValue, 1, 1);
+            this.tableLayoutPanel3.Controls.Add(this.gammaValue, 1, 2);
+            this.tableLayoutPanel3.Controls.Add(this.sharpnessValue, 1, 3);
+            this.tableLayoutPanel3.Controls.Add(this.exposureAuto, 0, 0);
+            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(3, 17);
+            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
+            this.tableLayoutPanel3.RowCount = 4;
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(233, 153);
+            this.tableLayoutPanel3.TabIndex = 3;
+            // 
             // gainAuto
             // 
             this.gainAuto.ButtonText = "...";
@@ -381,6 +320,21 @@
             this.gainAuto.TabIndex = 4;
             this.gainAuto.Text = "自动";
             this.gainAuto.CheckedChanged += new System.EventHandler(this.gainAuto_CheckedChanged);
+            // 
+            // gammaEnable
+            // 
+            this.gammaEnable.AutoSize = true;
+            this.gammaEnable.Checked = true;
+            this.gammaEnable.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.gammaEnable.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gammaEnable.Enabled = false;
+            this.gammaEnable.Location = new System.Drawing.Point(3, 79);
+            this.gammaEnable.Name = "gammaEnable";
+            this.gammaEnable.Size = new System.Drawing.Size(169, 32);
+            this.gammaEnable.TabIndex = 1;
+            this.gammaEnable.Text = "灰度系数";
+            this.gammaEnable.UseVisualStyleBackColor = true;
+            this.gammaEnable.CheckedChanged += new System.EventHandler(this.gammaEnable_CheckedChanged);
             // 
             // exposureTime
             // 
@@ -451,6 +405,38 @@
             this.exposureAuto.Text = "自动";
             this.exposureAuto.CheckedChanged += new System.EventHandler(this.exposureAuto_CheckedChanged);
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.tableLayoutPanel2);
+            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox1.Location = new System.Drawing.Point(3, 38);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(238, 173);
+            this.groupBox1.TabIndex = 2;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "图像设置";
+            // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.ColumnCount = 2;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.Controls.Add(this.fpsValue, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.imageHeight, 0, 3);
+            this.tableLayoutPanel2.Controls.Add(this.imageWidth, 0, 2);
+            this.tableLayoutPanel2.Controls.Add(this.pixelFormat, 0, 1);
+            this.tableLayoutPanel2.Controls.Add(this.fpsEnable, 0, 0);
+            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 17);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 4;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(232, 153);
+            this.tableLayoutPanel2.TabIndex = 7;
+            // 
             // fpsValue
             // 
             this.fpsValue.ButtonText = "...";
@@ -509,6 +495,21 @@
             this.pixelFormat.Size = new System.Drawing.Size(226, 32);
             this.pixelFormat.TabIndex = 3;
             // 
+            // fpsEnable
+            // 
+            this.fpsEnable.AutoSize = true;
+            this.fpsEnable.Checked = true;
+            this.fpsEnable.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.fpsEnable.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fpsEnable.Enabled = false;
+            this.fpsEnable.Location = new System.Drawing.Point(3, 3);
+            this.fpsEnable.Name = "fpsEnable";
+            this.fpsEnable.Size = new System.Drawing.Size(102, 32);
+            this.fpsEnable.TabIndex = 1;
+            this.fpsEnable.Text = "帧率(frame/s)";
+            this.fpsEnable.UseVisualStyleBackColor = true;
+            this.fpsEnable.CheckedChanged += new System.EventHandler(this.fpsEnable_CheckedChanged);
+            // 
             // cameraSelector
             // 
             this.cameraSelector.ButtonText = "...";
@@ -533,6 +534,7 @@
             this.Load += new System.EventHandler(this.BaslerCamProperty_Load);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
+            this.tableLayoutPanel5.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.tableLayoutPanel4.ResumeLayout(false);
             this.tableLayoutPanel4.PerformLayout();
@@ -542,7 +544,6 @@
             this.groupBox1.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
-            this.tableLayoutPanel5.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }

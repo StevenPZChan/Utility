@@ -9,8 +9,11 @@ namespace Utility.Files
     /// </summary>
     public class IniFile
     {
-        private string path;
+        #region Fields
+        private readonly string path;
+        #endregion
 
+        #region Constructors
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -27,29 +30,9 @@ namespace Utility.Files
         {
             UpdateFile();
         }
-
-        #region 声明读写INI文件的API函数 
-        [DllImport("kernel32")]
-        private static extern bool WritePrivateProfileString(string section, string key, string val, string filePath);
-
-        [DllImport("kernel32")]
-        private static extern int GetPrivateProfileString(string section, string key, string defVal, StringBuilder retVal, int size, string filePath);
-
-        [DllImport("kernel32")]
-        private static extern int GetPrivateProfileString(string section, string key, string defVal, byte[] retVal, int size, string filePath);
         #endregion
 
-        /// <summary>
-        /// 写INI文件
-        /// </summary>
-        /// <param name="section">段落</param>
-        /// <param name="key">键</param>
-        /// <param name="value">值</param>
-        public void IniWriteValue(string section, string key, string value)
-        {
-            WritePrivateProfileString(section, key, value, path);
-        }
-
+        #region Methods
         /// <summary>
         /// 读取INI文件
         /// </summary>
@@ -58,12 +41,13 @@ namespace Utility.Files
         /// <returns>返回的键值</returns>
         public string IniReadValue(string section, string key)
         {
-            if (!File.Exists(path))
+            if (!File.Exists(this.path))
                 return "";
 
-            StringBuilder temp = new StringBuilder(255);
+            var temp = new StringBuilder(255);
 
-            int i = GetPrivateProfileString(section, key, "", temp, 255, path);
+            GetPrivateProfileString(section, key, "", temp, 255, this.path);
+
             return temp.ToString();
         }
 
@@ -77,6 +61,7 @@ namespace Utility.Files
         public string IniReadValue(string section, string key, string def)
         {
             string str = IniReadValue(section, key);
+
             return str == "" ? def : str;
         }
 
@@ -88,22 +73,38 @@ namespace Utility.Files
         /// <returns>返回byte类型的section组或键值组</returns>
         public byte[] IniReadValues(string section, string key)
         {
-            if (!File.Exists(path))
+            if (!File.Exists(this.path))
                 return null;
 
-            byte[] temp = new byte[255];
+            var temp = new byte[255];
 
-            int i = GetPrivateProfileString(section, key, "", temp, 255, path);
+            GetPrivateProfileString(section, key, "", temp, 255, this.path);
+
             return temp;
         }
+
+        /// <summary>
+        /// 写INI文件
+        /// </summary>
+        /// <param name="section">段落</param>
+        /// <param name="key">键</param>
+        /// <param name="value">值</param>
+        public void IniWriteValue(string section, string key, string value) => WritePrivateProfileString(section, key, value, this.path);
 
         /// <summary>
         /// 更新文件。
         /// </summary>
         /// <returns>返回更新是否成功。</returns>
-        public bool UpdateFile()
-        {
-            return WritePrivateProfileString(null, null, null, path);
-        }
+        public bool UpdateFile() => WritePrivateProfileString(null, null, null, this.path);
+
+        [DllImport("kernel32")]
+        private static extern int GetPrivateProfileString(string section, string key, string defVal, StringBuilder retVal, int size, string filePath);
+
+        [DllImport("kernel32")]
+        private static extern int GetPrivateProfileString(string section, string key, string defVal, byte[] retVal, int size, string filePath);
+
+        [DllImport("kernel32")]
+        private static extern bool WritePrivateProfileString(string section, string key, string val, string filePath);
+        #endregion
     }
 }
