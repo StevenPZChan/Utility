@@ -8,7 +8,7 @@ namespace Utility.Database
     /// <summary>
     /// OleDb数据库辅助类
     /// </summary>
-    public class DbOleHelper
+    public static class DbOleHelper
     {
         #region Methods
         /// <summary>

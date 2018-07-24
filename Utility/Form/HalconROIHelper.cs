@@ -415,7 +415,7 @@ namespace Utility.Form
         #endregion
 
         #region Nested type: SelectShapes
-        internal class SelectShapes : UserControl
+        private class SelectShapes : UserControl
         {
             #region Fields
             private readonly HalconROIHelper helper;
@@ -440,9 +440,8 @@ namespace Utility.Form
             #endregion
 
             #region Properties
-            public ShapeTypes ShapeTypes
+            private ShapeTypes ShapeTypes
             {
-                get { return this.helper.RegionButton; }
                 set
                 {
                     this.total.Checked = value == ShapeTypes.All;

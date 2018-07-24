@@ -9,7 +9,7 @@ namespace Utility.Database
     /// <summary>
     /// Oracle数据库辅助类
     /// </summary>
-    public class DbOrcHelper
+    public static class DbOrcHelper
     {
         #region Methods
         /// <summary>

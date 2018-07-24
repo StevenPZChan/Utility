@@ -10,7 +10,7 @@ namespace Utility.Files
     /// <summary>
     /// csv文件操作类
     /// </summary>
-    public class CsvFile
+    public static class CsvFile
     {
         #region Methods
         /// <summary>

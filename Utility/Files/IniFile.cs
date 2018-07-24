@@ -91,12 +91,6 @@ namespace Utility.Files
         /// <param name="value">值</param>
         public void IniWriteValue(string section, string key, string value) => WritePrivateProfileString(section, key, value, this.path);
 
-        /// <summary>
-        /// 更新文件。
-        /// </summary>
-        /// <returns>返回更新是否成功。</returns>
-        public bool UpdateFile() => WritePrivateProfileString(null, null, null, this.path);
-
         [DllImport("kernel32")]
         private static extern int GetPrivateProfileString(string section, string key, string defVal, StringBuilder retVal, int size, string filePath);
 
@@ -105,6 +99,12 @@ namespace Utility.Files
 
         [DllImport("kernel32")]
         private static extern bool WritePrivateProfileString(string section, string key, string val, string filePath);
+
+        /// <summary>
+        /// 更新文件。
+        /// </summary>
+        /// <returns>返回更新是否成功。</returns>
+        private bool UpdateFile() => WritePrivateProfileString(null, null, null, this.path);
         #endregion
     }
 }

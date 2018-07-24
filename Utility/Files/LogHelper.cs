@@ -10,7 +10,7 @@ namespace Utility.Files
     /// <summary>
     /// 日志记录类 在Program.cs中插入LogHelper.BindExceptionHandler();即可实现未捕捉异常的日志记录功能
     /// </summary>
-    public class LogHelper
+    public static class LogHelper
     {
         #region Methods
         /// <summary>

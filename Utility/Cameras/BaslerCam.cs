@@ -464,6 +464,8 @@ namespace Utility.Cameras
         public bool SaveCameraParams(string deviceStateFile)
         {
             //camera.Parameters.Save(deviceStateFile, ParameterPath.CameraDevice);
+            if (this._camera == null)
+                return false;
 
             try
             {

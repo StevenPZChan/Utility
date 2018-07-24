@@ -155,7 +155,7 @@ namespace Utility.Form
         /// <summary>
         /// 构造函数
         /// </summary>
-        public CEdit()
+        protected CEdit()
         {
             InitializeComponent();
             this.HasButton = false;
@@ -238,7 +238,7 @@ namespace Utility.Form
         #endregion
 
         #region Nested type: UcFoldPanelDesigner
-        internal class UcFoldPanelDesigner : ControlDesigner
+        private class UcFoldPanelDesigner : ControlDesigner
         {
             #region Fields
             private CEditEx ucFoldPanelControl;

@@ -138,11 +138,11 @@ namespace Utility.Cameras
         /// <summary>
         /// 相机信息
         /// </summary>
-        public string DeviceInfo;
+        public readonly string DeviceInfo;
         /// <summary>
         /// HObject图像对象
         /// </summary>
-        public HImage Image;
+        public readonly HImage Image;
         #endregion
 
         #region Constructors
