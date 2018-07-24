@@ -8,7 +8,7 @@ namespace Utility.Database
     /// <summary>
     /// SQL数据库辅助类
     /// </summary>
-    public class DbSqlHelper
+    public static class DbSqlHelper
     {
         #region Methods
         /// <summary>

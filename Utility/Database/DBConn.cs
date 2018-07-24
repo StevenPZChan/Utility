@@ -13,7 +13,7 @@ namespace Utility.Database
     /// <summary>
     /// 数据库连接字符串类
     /// </summary>
-    public class DbConn
+    public static class DbConn
     {
         #region Methods
         /// <summary>
