@@ -20,6 +20,7 @@
             base.Dispose(disposing);
         }
 
+
         #region 组件设计器生成的代码
 
         /// <summary> 
